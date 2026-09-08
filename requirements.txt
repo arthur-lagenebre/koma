@@ -1,0 +1,3 @@
+lxml>=5.0
+Pillow>=10.0
+rnc2rng>=2.7

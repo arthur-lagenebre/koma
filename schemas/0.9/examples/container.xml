@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Container xmlns="urn:koma:container" version="0.9">
+  <RootFiles>
+    <RootFile full-path="koma/manifest.xml"
+              media-type="application/vnd.koma.manifest+xml"/>
+  </RootFiles>
+</Container>

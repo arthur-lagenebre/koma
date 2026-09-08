@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Metadata xmlns="urn:koma:metadata" xmlns:demo="https://example.org/ns/demo"
+          version="0.9" xml:lang="fr">
+  <Identifiers>
+    <Identifier scheme="uuid" primary="true">urn:uuid:6f9619ff-8b86-d011-b42d-00c04fc964ff</Identifier>
+    <Identifier scheme="isbn-13">9782123456803</Identifier>
+  </Identifiers>
+  <Titles>
+    <Title type="main">Le Dernier Rivage</Title>
+    <Title type="original" xml:lang="ja">最後の岸</Title>
+  </Titles>
+  <Languages>
+    <Language role="content">fr</Language>
+    <Language role="original">ja</Language>
+  </Languages>
+  <Collections>
+    <Collection type="series" position="3" total="12" relation="main">
+      <Name xml:lang="fr">Chroniques du Rivage</Name>
+    </Collection>
+  </Collections>
+  <Contributors>
+    <Contributor type="person" roles="artist;x-flatter">
+      <Name type="given" display-order="1">Claire</Name>
+      <Name type="family" display-order="2" sort-order="1">Dupont</Name>
+    </Contributor>
+    <Contributor type="organization" roles="editor">
+      <Name>Editions Exemple</Name>
+    </Contributor>
+  </Contributors>
+  <Descriptions>
+    <Description type="summary" xml:lang="fr">Un recit post-apocalyptique.</Description>
+  </Descriptions>
+  <Publication>
+    <Publisher>Editions Exemple</Publisher>
+    <Place>Paris</Place>
+    <Edition number="2">Edition revue</Edition>
+    <Date event="publication">2026-03</Date>
+    <Date event="first-publication">1998</Date>
+    <Date event="modified">2026-03-14T10:22:00Z</Date>
+    <PhysicalFormat trim-width="170" trim-height="240" unit="mm"/>
+  </Publication>
+  <Subjects>
+    <Subject type="genre" xml:lang="fr">Science-fiction</Subject>
+    <Subject type="genre" scheme="bisac" code="CGN004050"/>
+  </Subjects>
+  <Entities>
+    <Entity type="character" role="protagonist">
+      <Name>Alix</Name>
+      <Name type="alternative" xml:lang="ja">アリックス</Name>
+    </Entity>
+  </Entities>
+  <Reading direction="rtl" spread="auto"/>
+  <Content color-mode="monochrome" original-medium="print"/>
+  <Accessibility>
+    <AccessMode>visual</AccessMode>
+    <AccessModeSufficient>visual</AccessModeSufficient>
+    <AccessibilityFeature>alternative-text</AccessibilityFeature>
+    <AccessibilityHazard>no-flashing-hazard</AccessibilityHazard>
+    <AccessibilitySummary xml:lang="fr">Pages decrites individuellement.</AccessibilitySummary>
+    <ConformsTo identifier="EPUB Accessibility 1.1 - WCAG 2.1 Level AA"
+                href="https://www.w3.org/TR/epub-a11y-11/"/>
+  </Accessibility>
+  <Ratings>
+    <Rating scheme="cero" value="C" region="JP"/>
+    <ContentWarning type="violence" xml:lang="fr">Combats.</ContentWarning>
+  </Ratings>
+  <Links>
+    <Link rel="publisher" href="https://example.org/">Editeur</Link>
+  </Links>
+  <Rights>
+    <Copyright xml:lang="fr">(c) 2026 Editions Exemple</Copyright>
+    <License identifier="CC-BY-SA-4.0" href="https://example.org/l"/>
+  </Rights>
+  <Provenance>
+    <Source type="print">
+      <Identifier scheme="isbn-10">2123456803</Identifier>
+      <Publisher>Editions Exemple</Publisher>
+      <Date event="publication">1998</Date>
+      <Holding institution="BnF" shelfmark="4-CG-1234"/>
+    </Source>
+    <Digitization>
+      <Agent>Atelier Numerique</Agent>
+      <Date>2024-05-02</Date>
+      <Method>flatbed-scan</Method>
+      <Resolution value="600" unit="dpi"/>
+      <Equipment>Epson Expression 12000XL</Equipment>
+      <Processing>deskew;despeckle</Processing>
+    </Digitization>
+    <Note xml:lang="fr">Exemplaire relie.</Note>
+  </Provenance>
+  <Extensions>
+    <demo:series-colour gm:essential="false" xmlns:gm="urn:koma:metadata" value="#204080"/>
+  </Extensions>
+</Metadata>

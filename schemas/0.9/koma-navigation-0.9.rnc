@@ -1,0 +1,124 @@
+# KOMA 0.9 — schema for koma/nav.xml
+# Layer 2 only. That every target is a spine item, that landmark types are
+# unique and that region sequences are unique per item belong to layer 3.
+
+default namespace = "urn:koma:navigation"
+
+namespace gc = "urn:koma:container"
+namespace gm = "urn:koma:metadata"
+namespace gf = "urn:koma:manifest"
+namespace gn = "urn:koma:navigation"
+
+datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
+
+start = Navigation
+
+# At least one of the four navigation sections must be present.
+Navigation =
+  element Navigation {
+    attribute version { "0.9" },
+    Lang?,
+    NavigationSections,
+    Extensions?
+  }
+
+NavigationSections =
+    (TableOfContents, PageList?, Landmarks?, Regions?)
+  | (PageList, Landmarks?, Regions?)
+  | (Landmarks, Regions?)
+  | Regions
+
+## 9.1 Table of contents
+
+TableOfContents = element TableOfContents { Entry+ }
+
+Entry =
+  element Entry {
+    attribute item { xsd:NCName },
+    Label+,
+    Entry*
+  }
+
+Label = element Label { Lang?, NonEmpty }
+
+## 9.2 Page list
+
+PageList = element PageList { PageTarget+ }
+
+PageTarget =
+  element PageTarget {
+    attribute item { xsd:NCName },
+    attribute label { NonEmpty },
+    attribute spread-position { "left" | "right" }?
+  }
+
+## 9.3 Landmarks
+
+Landmarks = element Landmarks { Landmark+ }
+
+Landmark =
+  element Landmark {
+    attribute type { Token },
+    attribute item { xsd:NCName },
+    Label*
+  }
+
+## 9.4 Regions
+
+Regions = element Regions { RegionSequence+ }
+
+RegionSequence =
+  element RegionSequence {
+    attribute item { xsd:NCName },
+    Region+
+  }
+
+Region =
+  element Region {
+    attribute type { Token }?,
+    attribute x { Decimal01 },
+    attribute y { Decimal01 },
+    attribute width { Decimal01 },
+    attribute height { Decimal01 },
+    Label*
+  }
+
+## 12. Extensions
+
+Extensions = element Extensions { ExtensionChild+ }
+
+ExtensionChild =
+  element * - (gc:* | gm:* | gf:* | gn:*) {
+    attribute gm:essential { Boolean }?,
+    AnyContent
+  }
+
+AnyContent =
+  (attribute * - gm:essential { text }
+   | ForeignElement
+   | text)*
+
+# G8: the core-namespace exclusion holds at every depth inside an extension,
+# not only on its direct children. An element in no namespace cannot be
+# excluded here (RELAX NG compact has no name class for it that this
+# toolchain emits), so section 4.6's "foreign content MUST use a foreign
+# namespace" is enforced at layer 3 instead. See section 17.
+ForeignElement =
+  element * - (gc:* | gm:* | gf:* | gn:*) {
+    (attribute * { text } | ForeignElement | text)*
+  }
+
+## 4.3 Data types
+
+Lang = attribute xml:lang { xsd:language | "" }
+
+Boolean = "true" | "false"
+
+Token = xsd:string { pattern = "[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?" }
+
+Decimal01 =
+  xsd:string { pattern = "(0(\.[0-9]{1,6})?|1(\.0{1,6})?)" }
+
+# G3: minLength counts characters before normalization, so a value of
+# nothing but spaces would pass. Require one non-whitespace character.
+NonEmpty = xsd:string { pattern = "[\s\S]*\S[\s\S]*" }

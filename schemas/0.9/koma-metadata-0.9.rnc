@@ -1,0 +1,347 @@
+# KOMA 0.9 — schema for koma/metadata.xml
+# Layer 2 only: structure, cardinality, data types, closed vocabularies.
+# Open vocabularies are validated as Token; their core-token membership,
+# uniqueness rules and cross-document constraints belong to layer 3.
+
+default namespace = "urn:koma:metadata"
+
+namespace gc = "urn:koma:container"
+namespace gm = "urn:koma:metadata"
+namespace gf = "urn:koma:manifest"
+namespace gn = "urn:koma:navigation"
+
+datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
+
+start = Metadata
+
+Metadata =
+  element Metadata {
+    attribute version { "0.9" },
+    Lang?,
+    Identifiers,
+    Titles,
+    Languages,
+    Collections?,
+    Contributors?,
+    Descriptions?,
+    Publication?,
+    Subjects?,
+    Entities?,
+    Reading,
+    Content?,
+    Accessibility?,
+    Ratings?,
+    Links?,
+    Rights?,
+    Provenance?,
+    Extensions?
+  }
+
+## 7.2 Identifiers
+
+Identifiers = element Identifiers { Identifier+ }
+
+Identifier =
+  element Identifier {
+    attribute scheme { Token },
+    attribute primary { Boolean }?,
+    NonEmpty
+  }
+
+## 7.3 Titles
+
+Titles = element Titles { Title+ }
+
+Title =
+  element Title {
+    attribute type { Token },
+    Lang?,
+    NonEmpty
+  }
+
+## 7.4 Languages
+
+Languages = element Languages { Language+ }
+
+Language =
+  element Language {
+    attribute role { Token },
+    LanguageTag
+  }
+
+## 7.5 Collections
+
+Collections = element Collections { Collection+ }
+
+Collection =
+  element Collection {
+    attribute type { Token },
+    attribute position { NonEmpty }?,
+    attribute total { NonEmpty }?,
+    attribute relation { Token }?,
+    SimpleName+
+  }
+
+SimpleName = element Name { Lang?, NonEmpty }
+
+## 7.6 Contributors
+
+Contributors = element Contributors { Contributor+ }
+
+Contributor =
+  element Contributor {
+    attribute type { "person" | "organization" },
+    attribute roles { TokenList },
+    ContributorName+
+  }
+
+ContributorName =
+  element Name {
+    attribute type { Token }?,
+    attribute display-order { PositiveInteger }?,
+    attribute sort-order { PositiveInteger }?,
+    Lang?,
+    NonEmpty
+  }
+
+## 7.7 Descriptions
+
+Descriptions = element Descriptions { Description+ }
+
+Description =
+  element Description {
+    attribute type { Token },
+    Lang?,
+    NonEmpty
+  }
+
+## 7.8 Publication
+
+Publication =
+  element Publication {
+    element Publisher { Lang?, NonEmpty }?,
+    element Imprint { Lang?, NonEmpty }?,
+    element Place { Lang?, NonEmpty }?,
+    element Edition {
+      attribute number { PositiveInteger }?,
+      Lang?,
+      NonEmpty
+    }?,
+    PublicationDate*,
+    element PhysicalFormat {
+      attribute trim-width { PositiveInteger },
+      attribute trim-height { PositiveInteger },
+      attribute unit { "mm" }
+    }?
+  }
+
+PublicationDate =
+  element Date {
+    attribute event { Token },
+    DateValue
+  }
+
+## 7.9 Subjects
+
+Subjects = element Subjects { Subject+ }
+
+# G6: at least one of text content or @code, and @code implies @scheme.
+Subject =
+  element Subject {
+    attribute type { Token }?,
+    Lang?,
+    ((attribute scheme { NonEmpty }, attribute code { NonEmpty },
+      (NonEmpty | empty))
+     | (attribute scheme { NonEmpty }?, NonEmpty))
+  }
+
+## 7.10 Entities
+
+Entities = element Entities { Entity+ }
+
+Entity =
+  element Entity {
+    attribute type { Token },
+    attribute role { Token }?,
+    EntityName+
+  }
+
+EntityName =
+  element Name {
+    attribute type { Token }?,
+    Lang?,
+    NonEmpty
+  }
+
+## 7.11 Reading
+
+Reading =
+  element Reading {
+    attribute direction { "ltr" | "rtl" },
+    attribute spread { "none" | "auto" | "force" }?
+  }
+
+## 7.12 Content
+
+Content =
+  element Content {
+    attribute color-mode { "monochrome" | "color" | "mixed" | "unknown" }?,
+    attribute original-medium { Token }?
+  }
+
+## 7.13 Accessibility
+
+Accessibility =
+  element Accessibility {
+    element AccessMode { Token }+,
+    element AccessModeSufficient { TokenList }*,
+    element AccessibilityFeature { Token }*,
+    element AccessibilityHazard { Token }*,
+    element AccessibilitySummary { Lang?, NonEmpty }*,
+    element ConformsTo {
+      attribute identifier { NonEmpty },
+      attribute href { IRI }?
+    }*,
+    element Certification {
+      attribute certified-by { NonEmpty }?,
+      attribute credential { NonEmpty }?,
+      attribute report { IRI }?
+    }?
+  }
+
+## 7.14 Ratings
+
+Ratings = element Ratings { Rating*, ContentWarning* }
+
+Rating =
+  element Rating {
+    attribute scheme { NonEmpty },
+    attribute value { NonEmpty },
+    attribute region { xsd:string { pattern = "[A-Z]{2}" } }?
+  }
+
+ContentWarning =
+  element ContentWarning {
+    attribute type { Token },
+    Lang?,
+    (NonEmpty | empty)
+  }
+
+## 7.15 Links
+
+Links = element Links { Link+ }
+
+Link =
+  element Link {
+    attribute rel { Token },
+    attribute href { IRI },
+    attribute media-type { NonEmpty }?,
+    Lang?,
+    (NonEmpty | empty)
+  }
+
+## 7.16 Rights
+
+Rights =
+  element Rights {
+    element Copyright { Lang?, NonEmpty }*,
+    element License {
+      attribute identifier { NonEmpty }?,
+      attribute href { IRI }?
+    }*,
+    element Statement { Lang?, NonEmpty }*
+  }
+
+## 7.17 Provenance
+
+Provenance =
+  element Provenance {
+    Source?,
+    Digitization?,
+    element Note { Lang?, NonEmpty }*
+  }
+
+Source =
+  element Source {
+    attribute type { Token },
+    element Identifier {
+      attribute scheme { Token },
+      NonEmpty
+    }*,
+    element Publisher { Lang?, NonEmpty }?,
+    element Edition { Lang?, NonEmpty }?,
+    element Date {
+      attribute event { Token },
+      DateValue
+    }*,
+    element Holding {
+      attribute institution { NonEmpty },
+      attribute shelfmark { NonEmpty }?
+    }?
+  }
+
+Digitization =
+  element Digitization {
+    element Agent { Lang?, NonEmpty }?,
+    element Date { DateValue }?,
+    element Method { Token }?,
+    element Resolution {
+      attribute value { PositiveInteger },
+      attribute unit { "dpi" | "ppcm" }
+    }?,
+    element Equipment { NonEmpty }?,
+    element Processing { TokenList }?
+  }
+
+## 12. Extensions
+
+Extensions = element Extensions { ExtensionChild+ }
+
+ExtensionChild =
+  element * - (gc:* | gm:* | gf:* | gn:*) {
+    attribute gm:essential { Boolean }?,
+    AnyContent
+  }
+
+AnyContent =
+  (attribute * - gm:essential { text }
+   | ForeignElement
+   | text)*
+
+# G8: the core-namespace exclusion holds at every depth inside an extension,
+# not only on its direct children. An element in no namespace cannot be
+# excluded here (RELAX NG compact has no name class for it that this
+# toolchain emits), so section 4.6's "foreign content MUST use a foreign
+# namespace" is enforced at layer 3 instead. See section 17.
+ForeignElement =
+  element * - (gc:* | gm:* | gf:* | gn:*) {
+    (attribute * { text } | ForeignElement | text)*
+  }
+
+## 4.3 Data types
+
+Lang = attribute xml:lang { LanguageTag | "" }
+
+Boolean = "true" | "false"
+
+PositiveInteger = xsd:string { pattern = "[1-9][0-9]*" }
+
+Token = xsd:string { pattern = "[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?" }
+
+TokenList =
+  xsd:string {
+    pattern =
+      "[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?(;[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?)*"
+  }
+
+LanguageTag = xsd:language
+
+# G5: xsd:anyURI accepts relative references. Section 4.3 requires an
+# absolute IRI, so a scheme is mandatory.
+IRI = xsd:string { pattern = "[a-zA-Z][a-zA-Z0-9+.\-]*:[\s\S]+" }
+
+# G3: minLength counts characters before normalization, so a value of
+# nothing but spaces would pass. Require one non-whitespace character.
+NonEmpty = xsd:string { pattern = "[\s\S]*\S[\s\S]*" }
+
+DateValue = xsd:gYear | xsd:gYearMonth | xsd:date | xsd:dateTime

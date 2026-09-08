@@ -1,0 +1,173 @@
+{
+  "specification": "KOMA 0.9",
+  "cases": [
+    {
+      "package": "valid-minimal.koma",
+      "outcome": "valid",
+      "code": null,
+      "note": "Baseline package. Every other case is this one with one thing changed."
+    },
+    {
+      "package": "valid-no-navigation.koma",
+      "outcome": "warning",
+      "code": "no-navigation-document",
+      "note": "nav.xml absent. Legal, but a validator warns."
+    },
+    {
+      "package": "valid-private-use-tokens.koma",
+      "outcome": "warning",
+      "code": "private-use-token",
+      "note": "x- tokens in an open vocabulary. Accepted, flagged."
+    },
+    {
+      "package": "L1-mimetype-wrong-content.koma",
+      "outcome": "error",
+      "code": "mimetype-content",
+      "note": "mimetype holds the old GRNO spelling."
+    },
+    {
+      "package": "L1-mimetype-not-first.koma",
+      "outcome": "error",
+      "code": "mimetype-position",
+      "note": "mimetype present but not the first ZIP entry."
+    },
+    {
+      "package": "L1-mimetype-deflated.koma",
+      "outcome": "error",
+      "code": "mimetype-compression",
+      "note": "mimetype stored with Deflate instead of Store."
+    },
+    {
+      "package": "L1-path-traversal.koma",
+      "outcome": "error",
+      "code": "path-traversal",
+      "note": "An entry escapes the package root."
+    },
+    {
+      "package": "L1-absolute-path.koma",
+      "outcome": "error",
+      "code": "absolute-path",
+      "note": "An entry name starts with a slash."
+    },
+    {
+      "package": "L1-case-fold-duplicate.koma",
+      "outcome": "error",
+      "code": "duplicate-logical-entry",
+      "note": "Two entries differing only by case fold to the same logical name."
+    },
+    {
+      "package": "L3-no-front-cover.koma",
+      "outcome": "error",
+      "code": "front-cover-missing",
+      "note": "No item carries the front-cover role."
+    },
+    {
+      "package": "L3-two-front-covers.koma",
+      "outcome": "error",
+      "code": "front-cover-duplicate",
+      "note": "Two items claim the front cover."
+    },
+    {
+      "package": "L3-private-token-as-cover.koma",
+      "outcome": "error",
+      "code": "front-cover-missing",
+      "note": "A private-use token cannot satisfy the front-cover requirement."
+    },
+    {
+      "package": "L3-cover-not-in-spine.koma",
+      "outcome": "error",
+      "code": "front-cover-not-in-spine",
+      "note": "The cover exists but is not a reading resource."
+    },
+    {
+      "package": "L3-spine-target-missing.koma",
+      "outcome": "error",
+      "code": "spine-target-missing",
+      "note": "An ItemRef points at an id that does not exist."
+    },
+    {
+      "package": "L3-item-twice-in-spine.koma",
+      "outcome": "error",
+      "code": "spine-duplicate-item",
+      "note": "The same item appears twice in the reading order."
+    },
+    {
+      "package": "L3-nav-target-outside-spine.koma",
+      "outcome": "error",
+      "code": "navigation-target-outside-spine",
+      "note": "A TOC entry targets an item that is not in the spine."
+    },
+    {
+      "package": "L3-span2-with-side.koma",
+      "outcome": "error",
+      "code": "span2-spread-position",
+      "note": "A two-page image cannot be pinned to a physical side."
+    },
+    {
+      "package": "L3-hazard-contradiction.koma",
+      "outcome": "error",
+      "code": "accessibility-hazard-conflict",
+      "note": "no-flashing-hazard declared alongside a flashing-images warning."
+    },
+    {
+      "package": "L3-decorative-with-alt-text.koma",
+      "outcome": "error",
+      "code": "decorative-with-alternative-text",
+      "note": "A page declared decorative also carries alternative text."
+    },
+    {
+      "package": "L3-resource-not-in-spine.koma",
+      "outcome": "warning",
+      "code": "resource-outside-spine",
+      "note": "A declared page is never read."
+    },
+    {
+      "package": "L3-cover-not-first.koma",
+      "outcome": "warning",
+      "code": "front-cover-not-first",
+      "note": "The cover is in the spine but not at its head."
+    },
+    {
+      "package": "L3-tokenlist-duplicate.koma",
+      "outcome": "error",
+      "code": "tokenlist-duplicate",
+      "note": "A roles attribute repeats a token, which section 4.3 forbids."
+    },
+    {
+      "package": "L3-unnamespaced-extension.koma",
+      "outcome": "error",
+      "code": "unnamespaced-element-in-extensions",
+      "note": "An element in no namespace is neither core nor legal foreign content."
+    },
+    {
+      "package": "L4-media-type-mismatch.koma",
+      "outcome": "error",
+      "code": "media-type-mismatch",
+      "note": "PNG bytes declared as JPEG."
+    },
+    {
+      "package": "L4-wrong-dimensions.koma",
+      "outcome": "error",
+      "code": "dimensions-mismatch",
+      "note": "Declared width does not match the raster."
+    },
+    {
+      "package": "L4-animated-page.koma",
+      "outcome": "error",
+      "code": "animated-page-resource",
+      "note": "An animated WebP is used as a page."
+    },
+    {
+      "package": "L4-failed-checksum.koma",
+      "outcome": "error",
+      "code": "checksum-mismatch",
+      "note": "The declared digest does not match the stored bytes."
+    },
+    {
+      "package": "L4-residual-exif-orientation.koma",
+      "outcome": "error",
+      "code": "exif-orientation-residue",
+      "note": "The cover keeps an EXIF orientation of 6."
+    }
+  ]
+}

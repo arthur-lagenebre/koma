@@ -1,0 +1,121 @@
+# KOMA 0.9 — schema for koma/manifest.xml
+# Layer 2 only. Uniqueness of ids, spine/reference integrity, the single
+# front-cover rule and all resource checks belong to layers 3 and 4.
+
+default namespace = "urn:koma:manifest"
+
+namespace gc = "urn:koma:container"
+namespace gm = "urn:koma:metadata"
+namespace gf = "urn:koma:manifest"
+namespace gn = "urn:koma:navigation"
+
+datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
+
+start = Manifest
+
+Manifest =
+  element Manifest {
+    attribute version { "0.9" },
+    attribute metadata { Path },
+    attribute navigation { Path }?,
+    element Resources { Item+ },
+    element Spine { ItemRef+ },
+    Extensions?
+  }
+
+## 8.1 Items
+
+Item =
+  element Item {
+    attribute id { xsd:NCName },
+    attribute href { Path },
+    attribute media-type { "image/jpeg" | "image/png" | "image/webp" },
+    attribute width { PositiveInteger },
+    attribute height { PositiveInteger },
+    attribute roles { TokenList }?,
+    attribute page-span { "1" | "2" }?,
+    attribute background-color { Color }?,
+    Checksum?,
+    ItemAccessibility?,
+    Extensions?
+  }
+
+## 8.6 Integrity
+
+Checksum =
+  element Checksum {
+    attribute algorithm { "sha-256" },
+    xsd:string { pattern = "[0-9a-f]{64}" }
+  }
+
+## 8.7 Page-level accessibility
+
+# G7: section 8.7 forbids AlternativeText on a decorative page.
+ItemAccessibility =
+  element Accessibility {
+    (attribute decorative { "true" }, element Description { Lang?, NonEmpty }*)
+    | (attribute decorative { "false" }?,
+       element AlternativeText { Lang?, NonEmpty }*,
+       element Description { Lang?, NonEmpty }*)
+  }
+
+## 8.8 Spine
+
+ItemRef =
+  element ItemRef {
+    attribute item { xsd:NCName },
+    attribute spread-position { "auto" | "left" | "right" | "center" }?
+  }
+
+## 12. Extensions
+
+Extensions = element Extensions { ExtensionChild+ }
+
+ExtensionChild =
+  element * - (gc:* | gm:* | gf:* | gn:*) {
+    attribute gm:essential { Boolean }?,
+    AnyContent
+  }
+
+AnyContent =
+  (attribute * - gm:essential { text }
+   | ForeignElement
+   | text)*
+
+# G8: the core-namespace exclusion holds at every depth inside an extension,
+# not only on its direct children. An element in no namespace cannot be
+# excluded here (RELAX NG compact has no name class for it that this
+# toolchain emits), so section 4.6's "foreign content MUST use a foreign
+# namespace" is enforced at layer 3 instead. See section 17.
+ForeignElement =
+  element * - (gc:* | gm:* | gf:* | gn:*) {
+    (attribute * { text } | ForeignElement | text)*
+  }
+
+## 4.3 Data types
+
+Lang = attribute xml:lang { xsd:language | "" }
+
+Boolean = "true" | "false"
+
+PositiveInteger = xsd:string { pattern = "[1-9][0-9]*" }
+
+Color = xsd:string { pattern = "#[0-9A-Fa-f]{6}" }
+
+TokenList =
+  xsd:string {
+    pattern =
+      "[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?(;[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?)*"
+  }
+
+# G3: minLength counts characters before normalization, so a value of
+# nothing but spaces would pass. Require one non-whitespace character.
+NonEmpty = xsd:string { pattern = "[\s\S]*\S[\s\S]*" }
+
+# G4: no leading slash, no backslash, no "." or ".." segment, and none of
+# %, ? or # anywhere, so that a path cannot be read as a URL reference.
+Path =
+  xsd:string {
+    pattern =
+      "(([^/\\.%?\#]|\.[^/\\.%?\#]|\.\.[^/\\%?\#])[^/\\%?\#]*/)*(([^/\\.%?\#]|\.[^/\\.%?\#]|\.\.[^/\\%?\#])[^/\\%?\#]*)"
+  }

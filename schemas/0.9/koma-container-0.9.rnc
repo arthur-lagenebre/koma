@@ -1,0 +1,28 @@
+# KOMA 0.9 — schema for META-INF/container.xml
+# Layer 2 only. Cross-document and resource constraints are out of scope.
+
+default namespace = "urn:koma:container"
+datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
+
+start = Container
+
+Container =
+  element Container {
+    attribute version { "0.9" },
+    element RootFiles {
+      element RootFile {
+        attribute full-path { Path },
+        attribute media-type { "application/vnd.koma.manifest+xml" }
+      }
+    }
+  }
+
+# Package-root-relative path: no leading slash, no backslash,
+# no "." or ".." segment. Byte-level uniqueness is layer 1.
+# G4: no leading slash, no backslash, no "." or ".." segment, and none of
+# %, ? or # anywhere, so that a path cannot be read as a URL reference.
+Path =
+  xsd:string {
+    pattern =
+      "(([^/\\.%?\#]|\.[^/\\.%?\#]|\.\.[^/\\%?\#])[^/\\%?\#]*/)*(([^/\\.%?\#]|\.[^/\\.%?\#]|\.\.[^/\\%?\#])[^/\\%?\#]*)"
+  }
