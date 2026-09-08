@@ -1,0 +1,11 @@
+# This repository is LF-only, and not by preference. Section 14.1 of the
+# specification requires LF line endings in core documents, section 2.1 fixes
+# an exact byte layout for the start of a package, and the three LICENSE-*
+# files must stay byte-for-byte identical to their SPDX originals. SHA256SUMS
+# hashes that LF content: a CRLF checkout would fail every text line of it,
+# on Windows only, while CI on ubuntu-latest stayed green.
+* text=auto eol=lf
+
+# Conformance packages and CBZ fixtures are ZIP archives. Never transform them.
+*.koma binary
+*.cbz  binary
