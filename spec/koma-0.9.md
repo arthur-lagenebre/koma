@@ -972,18 +972,22 @@ Embedded image metadata is non-normative. Producers SHOULD remove privacy-sensit
 
 ### 13.1 Resource limits
 
-A reader MUST bound resource use. The following defaults are RECOMMENDED and SHOULD be configurable:
+A reader MUST bound resource use. The following values are the **default profile**:
 
 - total uncompressed size at most 4 GiB, and at most 100 times the archive size;
-- per-entry compression ratio above 100:1 treated as suspicious and rejected unless the entry is within the absolute limits;
+- per-entry compression ratio above 100:1 rejected, unless the entry's uncompressed size is at most 1 MiB;
 - at most 10 000 ZIP entries;
 - at most 100 megapixels per page resource, and at most 65 535 pixels per side;
 - at most 16 MiB per core XML document;
 - XML element nesting depth at most 100.
 
+A reader MUST operate in the default profile unless the user has explicitly raised a limit, and in the default profile it MUST reject a publication that exceeds any of these values. A reader MAY offer a control to raise a limit; where a raised limit is in effect it MUST report that the publication lies outside the default profile, and it MUST NOT raise a limit on its own initiative. Conformance statements and validation (§15) concern the default profile alone.
+
+The sizes declared in the ZIP central directory are chosen by the producer and MUST NOT be trusted. A reader MUST enforce these limits during decompression as well, and MUST stop reading an entry once the size its own central directory declares is exceeded.
+
 Exceeding a limit MUST result in a controlled failure, never in unbounded allocation.
 
-Forward-compatible processing (§5.3) MUST NOT relax any requirement in this section.
+Forward-compatible processing (§5.3) MUST NOT relax any requirement in this section, and is not a ground for raising a limit.
 
 ## 14. Canonical serialization and packaging
 
@@ -1018,7 +1022,7 @@ Reproducible packaging is not required for conformance, and its absence MUST NOT
 
 A conforming validator performs four layers:
 
-1. **Container validation** — ZIP profile, mimetype bytes and offset, paths, uniqueness, resource limits.
+1. **Container validation** — ZIP profile, mimetype bytes and offset, paths, uniqueness, the resource limits of the default profile (§13.1).
 2. **XML validation** — schemas, data types and lexical constraints, evaluated in the mode selected by §5.4.
 3. **Cross-document validation** — references, unique primary metadata, cover, navigation targets, spine constraints, region targets, accessibility consistency.
 4. **Resource validation** — actual MIME signatures, dimensions, animation, EXIF orientation residue, checksums, image and colour profile.
@@ -1026,6 +1030,8 @@ A conforming validator performs four layers:
 Examples of errors:
 
 - wrong `mimetype` content, position, method or local header offset;
+- a resource limit of the default profile exceeded (§13.1);
+- an entry whose content exceeds the uncompressed size its own central directory declares;
 - missing required XML;
 - inconsistent `version` across core documents;
 - unknown KOMA core element or attribute, in strict mode (§5.3);
@@ -1243,6 +1249,9 @@ Findings from the first external review, in the reviewer's numbering.
 - §7.2, §7.3, §7.4: attribute requiredness stated rather than implied.
 - §17: schemas written and their limits enumerated; the four `.rnc` files ship with this document.
 - §15: errors added for the newly expressible constraints.
+
+- §13.1: the limits become a normative default profile rather than configurable recommendations, since §15 counted them as validation while §13.1 let each reader choose its own thresholds. The per-entry ratio clause excepted entries "within the absolute limits", which were the global totals, so it could never fire; it now excepts entries of at most 1 MiB. Declared sizes are stated to be untrusted, and enforcement during decompression is required.
+- §15: container validation names the default profile; two errors added.
 
 The serialized version stays `0.9` because no implementation and no published file exists yet. Once a `0.9` file exists outside this repository, any further incompatible change requires a new number under §5.0.
 

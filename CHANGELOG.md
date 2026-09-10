@@ -13,6 +13,15 @@ are the convention that stands in for it.
 
 ## Unreleased
 
+- §13.1 reworked after implementation review. The section made its limits
+  RECOMMENDED and configurable while §15 counted them as container validation,
+  so there was no threshold a validator could validate against. They become a
+  normative default profile, raisable only by an explicit user action. The
+  per-entry ratio clause excepted entries "within the absolute limits", which
+  were the global totals, so no entry could ever trigger it; the exception is
+  now a per-entry floor. Declared ZIP sizes are stated to be producer-chosen,
+  with enforcement required during decompression as well.
+
 - Third external review applied. The §10.4 pseudocode, which the section makes
   normative, still described the behaviour the previous draft had replaced;
   `tests/test_spread.py` now compares it byte for byte with the reference
