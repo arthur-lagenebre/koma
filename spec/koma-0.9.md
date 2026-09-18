@@ -220,7 +220,7 @@ Major version 0 designates pre-release development versions.
 - A publication declaring a major version of 0 conforms to the pre-release specification of that version only. It is not a KOMA 1.0 publication, and SHOULD NOT be distributed as an archival copy.
 - Producers SHOULD be able to re-emit `0.x` content once `1.0` is published, rather than relying on readers to migrate it.
 - While no file declaring a given `0.x` version exists outside the repository that defines it, that version MAY be changed incompatibly without changing its number. **Once such a file has been published anywhere**, any further incompatible change MUST take a new number, because a reader supporting `0.x` rejects `0.y` outright and would otherwise be unable to tell the two apart.
-- The conformance corpus of §15.1 does not count as published files for the purpose of the preceding rule. Its packages are fixtures rather than publications: they are regenerated whenever the format changes, they are distributed with the specification that defines them, and they are never archival copies.
+- The conformance corpus of §15.2 does not count as published files for the purpose of the preceding rule. Its packages are fixtures rather than publications: they are regenerated whenever the format changes, they are distributed with the specification that defines them, and they are never archival copies.
 
 Version `0.9` will become `1.0` unchanged in substance, or with the changes recorded in the change log, once the criteria of §5.0.1 are met. The serialized value changes from `0.9` to `1.0` at that point and at no other.
 
@@ -230,7 +230,7 @@ The version is raised to `1.0` when all of the following hold:
 
 1. two independent reading system implementations pass the conformance requirements of §16, including the rendering model of §10;
 2. a validator implements the four layers of §15 and the version-dependent reporting rules of §5.4;
-3. the conformance corpus of §15.1 covers every error listed in §15 and every branch of the pairing algorithm of §10.4, and two independent implementations agree with it;
+3. the conformance corpus of §15.2 covers every error listed in §15 and every branch of the pairing algorithm of §10.4, and two independent implementations agree with it;
 4. the schemas of §17 are published and agree with this specification;
 5. the media type of §2 is registered (§18).
 
@@ -1086,7 +1086,30 @@ Informational results:
 - unknown core construct ignored while validating a newer minor version (§5.4);
 - publication declares a pre-release version (§5.0).
 
-### 15.1 Conformance corpus
+### 15.1 Error codes
+
+Every result a validator reports carries a code. The codes are those used in `corpus/expected.json`, which §15.2 makes normative by example. This section names the codes for results the corpus does not cover, so that two implementations describe the same defect the same way rather than each inventing a vocabulary.
+
+A code is lowercase ASCII with `-` as separator. Codes are stable: a code is never reused for a different defect, and a defect that later acquires a corpus case keeps the code assigned here.
+
+Container-layer codes with no corpus case:
+
+| Code | Defect |
+| --- | --- |
+| `path-empty` | Entry name empty or whitespace only (§3). |
+| `path-backslash` | Entry name containing a backslash (§3). |
+| `path-empty-segment` | Entry name with a leading, trailing or doubled `/` (§3). |
+| `path-not-normalized` | Entry name not in Unicode NFC (§3). |
+| `entry-count-limit` | More ZIP entries than the default profile allows (§13.1). |
+| `uncompressed-size-limit` | Declared total uncompressed size above the default profile (§13.1). |
+| `compression-ratio-limit` | Entry whose declared compression ratio exceeds the default profile (§13.1). |
+| `declared-size-mismatch` | Entry producing more bytes than its own central directory declares (§13.1). |
+
+A drive-letter prefix such as `C:/` is an absolute path for the purpose of `absolute-path`, although it does not begin with a separator.
+
+A validator reporting a defect to which this specification assigns no code MUST NOT spell it as a code assigned here or in the corpus.
+
+### 15.2 Conformance corpus
 
 A conformance corpus accompanies this specification:
 
@@ -1211,6 +1234,9 @@ This projection is lossy in both directions and is not a storage format. A tool 
 
 - §10.4: the **pseudocode** now expresses the spine-order invariant. The fourth draft added the invariant as a paragraph and changed the reference implementation, but left the normative pseudocode back-filling exactly as before, so the section prescribed two different behaviours for the same case. Found by external review; the paragraph, the pseudocode, the implementation and the fixtures now agree.
 - §5.0: the publication trigger that governs when a `0.x` number must move is stated here, normatively, instead of only in `CONTRIBUTING.md` and in this informative annex, which referred to "§5.0" for a rule §5.0 did not contain. The conformance corpus is excepted from it.
+- §13.1: the limits become a normative default profile rather than configurable recommendations, since §15 counted them as validation while §13.1 let each reader choose its own thresholds. The per-entry ratio clause excepted entries "within the absolute limits", which were the global totals, so it could never fire; it now excepts entries of at most 1 MiB. Declared sizes are stated to be untrusted, and enforcement during decompression is required.
+- §15: container validation names the default profile; two errors added.
+- §15.1: error codes defined, and the conformance corpus moves to §15.2. §15.2 required a validator to report a *named* error, and `expected.json` named them, but no section said the names were normative or what to call a defect the corpus does not exercise. Two conforming validators could therefore produce incomparable output, which §5.0.1 criterion 3 cannot tolerate. The corpus vocabulary is declared normative and the container-layer gaps are filled; the drive-letter reading of `absolute-path` is stated. Historical entries below still cite §15.1 for the corpus, as they described it at the time.
 
 ### 0.9, fourth draft
 
@@ -1249,9 +1275,6 @@ Findings from the first external review, in the reviewer's numbering.
 - §7.2, §7.3, §7.4: attribute requiredness stated rather than implied.
 - §17: schemas written and their limits enumerated; the four `.rnc` files ship with this document.
 - §15: errors added for the newly expressible constraints.
-
-- §13.1: the limits become a normative default profile rather than configurable recommendations, since §15 counted them as validation while §13.1 let each reader choose its own thresholds. The per-entry ratio clause excepted entries "within the absolute limits", which were the global totals, so it could never fire; it now excepts entries of at most 1 MiB. Declared sizes are stated to be untrusted, and enforcement during decompression is required.
-- §15: container validation names the default profile; two errors added.
 
 The serialized version stays `0.9` because no implementation and no published file exists yet. Once a `0.9` file exists outside this repository, any further incompatible change requires a new number under §5.0.
 

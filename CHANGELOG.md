@@ -13,6 +13,15 @@ are the convention that stands in for it.
 
 ## Unreleased
 
+- §15.1 added: error codes. The corpus named errors and §15.1 required a
+  validator to report a named error, but no section said those names were
+  normative, nor what to call a defect the corpus does not exercise. Two
+  conforming validators could produce incomparable output. The corpus
+  vocabulary is declared normative and the container-layer gaps are filled;
+  the conformance corpus moves to §15.2.
+- Annex B: the two entries from the previous change were recorded under the
+  second draft instead of the fifth, and are moved.
+
 - §13.1 reworked after implementation review. The section made its limits
   RECOMMENDED and configurable while §15 counted them as container validation,
   so there was no threshold a validator could validate against. They become a
