@@ -1116,10 +1116,11 @@ A conformance corpus accompanies this specification:
 ```text
 corpus/
 ├── expected.json          # the outcome each package must produce
-├── valid-*.koma
-├── L1-*.koma              # container-layer failures
-├── L3-*.koma              # cross-document failures
-└── L4-*.koma              # resource-layer failures
+└── packages/
+    ├── valid-*.koma
+    ├── L1-*.koma          # container-layer failures
+    ├── L3-*.koma          # cross-document failures
+    └── L4-*.koma          # resource-layer failures
 ```
 
 Each package differs from `valid-minimal.koma` in exactly one respect, and `expected.json` states, for each, whether a conforming validator MUST report it as valid, as carrying a named warning, or as carrying a named error. The corpus is normative by example: a validator that disagrees with `expected.json` does not conform, and a disagreement that this specification does not settle is an erratum.

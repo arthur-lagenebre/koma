@@ -9,6 +9,7 @@ import hashlib
 import io
 import json
 import os
+import random
 import shutil
 import zipfile
 
@@ -142,7 +143,8 @@ def base_files():
 
 
 def write_package(path, xml_files, pages, mimetype=MIMETYPE,
-                  mimetype_first=True, mimetype_stored=True, extra_entries=()):
+                  mimetype_first=True, mimetype_stored=True, extra_entries=(),
+                  postprocess=None):
     entries = []
     if mimetype_first:
         entries.append(("mimetype", mimetype.encode(), mimetype_stored))
@@ -162,6 +164,43 @@ def write_package(path, xml_files, pages, mimetype=MIMETYPE,
                                 else zipfile.ZIP_DEFLATED)
             zi.external_attr = 0o644 << 16
             z.writestr(zi, data)
+
+    if postprocess:
+        postprocess(path)
+
+
+def lie_about_size(entry, declared):
+    """Return a postprocess that makes `entry` under-declare its size.
+
+    No ZIP writer will produce this, so the bytes are patched afterwards: the
+    uncompressed size is overwritten in both the central directory and the
+    local file header, leaving the compressed data untouched. A reader that
+    trusts the declaration and allocates from it reads past what it reserved.
+    """
+    def f(path):
+        with open(path, "rb") as fh:
+            b = bytearray(fh.read())
+
+        name = entry.encode()
+        at = b.find(b"PK\x01\x02")
+        while at != -1:
+            n = int.from_bytes(b[at + 28:at + 30], "little")
+            m = int.from_bytes(b[at + 30:at + 32], "little")
+            k = int.from_bytes(b[at + 32:at + 34], "little")
+            if b[at + 46:at + 46 + n] == name:
+                b[at + 24:at + 28] = declared.to_bytes(4, "little")
+                local = int.from_bytes(b[at + 42:at + 46], "little")
+                assert b[local:local + 4] == b"PK\x03\x04", "local header not found"
+                b[local + 22:local + 26] = declared.to_bytes(4, "little")
+                break
+            at = b.find(b"PK\x01\x02", at + 46 + n + m + k)
+        else:
+            raise AssertionError(f"entry not found in central directory: {entry}")
+
+        with open(path, "wb") as fh:
+            fh.write(b)
+
+    return f
 
 
 # ---------------------------------------------------------------- cases
@@ -231,6 +270,21 @@ case("L1-absolute-path", "error", "absolute-path",
 case("L1-case-fold-duplicate", "error", "duplicate-logical-entry",
      "Two entries differing only by case fold to the same logical name.",
      extra_entries=[("pages/001.JPG", PAGES["pages/001.jpg"])])
+
+# 16 KiB of incompressible ballast so that the archive is large enough for the
+# 100x total rule of 13.1 not to fire as well: the package must breach one
+# limit, not two, or it cannot tell an implementation which one it got wrong.
+BALLAST = random.Random(0).randbytes(16 * 1024)
+
+case("L1-compression-ratio", "error", "compression-ratio-limit",
+     "An entry above the 1 MiB floor expands about 1000:1.",
+     extra_entries=[("extras/ballast.bin", BALLAST),
+                    ("extras/bomb.bin", b"\0" * (1024 * 1024 + 1))])
+
+case("L1-declared-size-mismatch", "error", "declared-size-mismatch",
+     "An entry declares 16 bytes and delivers 64 KiB.",
+     extra_entries=[("extras/liar.bin", b"\0" * (64 * 1024))],
+     postprocess=lie_about_size("extras/liar.bin", 16))
 
 # --- layer 3: cross-document -------------------------------------------
 case("L3-no-front-cover", "error", "front-cover-missing",

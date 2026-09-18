@@ -56,6 +56,18 @@
       "note": "Two entries differing only by case fold to the same logical name."
     },
     {
+      "package": "L1-compression-ratio.koma",
+      "outcome": "error",
+      "code": "compression-ratio-limit",
+      "note": "An entry above the 1 MiB floor expands about 1000:1."
+    },
+    {
+      "package": "L1-declared-size-mismatch.koma",
+      "outcome": "error",
+      "code": "declared-size-mismatch",
+      "note": "An entry declares 16 bytes and delivers 64 KiB."
+    },
+    {
       "package": "L3-no-front-cover.koma",
       "outcome": "error",
       "code": "front-cover-missing",

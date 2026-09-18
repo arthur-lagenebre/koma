@@ -13,6 +13,7 @@ import os
 import sys
 import unicodedata
 import zipfile
+import zlib
 
 from lxml import etree
 from PIL import Image
@@ -20,6 +21,13 @@ from PIL import Image
 MIMETYPE = b"application/vnd.koma+zip"
 NS = {"c": "urn:koma:container", "m": "urn:koma:metadata",
       "f": "urn:koma:manifest", "n": "urn:koma:navigation"}
+# The default profile of 13.1.
+MAX_ENTRIES = 10_000
+TOTAL_UNCOMPRESSED = 4 * 1024 ** 3
+ARCHIVE_MULTIPLE = 100
+MAX_RATIO = 100
+RATIO_FLOOR = 1024 * 1024
+
 SIGNATURES = {"image/jpeg": (b"\xff\xd8\xff",),
               "image/png": (b"\x89PNG\r\n\x1a\n",),
               "image/webp": (b"RIFF",)}
@@ -31,6 +39,28 @@ def schemas(dirname):
         out[name] = etree.RelaxNG(etree.parse(
             os.path.join(dirname, f"koma-{name}-0.9.rng")))
     return out
+
+
+def actual_size(raw, info):
+    """Decompress an entry and return its real size, ignoring what it declares.
+
+    zipfile stops at the declared size, so it cannot answer this question: an
+    entry that under-declares simply reads short. The compressed bytes are
+    taken straight out of the archive and inflated here instead.
+    """
+    off = info.header_offset
+    n = int.from_bytes(raw[off + 26:off + 28], "little")
+    m = int.from_bytes(raw[off + 28:off + 30], "little")
+    data = raw[off + 30 + n + m:off + 30 + n + m + info.compress_size]
+
+    if info.compress_type == zipfile.ZIP_STORED:
+        return len(data)
+    if info.compress_type == zipfile.ZIP_DEFLATED:
+        try:
+            return len(zlib.decompress(data, -15))
+        except zlib.error:
+            return None
+    return None
 
 
 def check(path, rng):
@@ -67,15 +97,43 @@ def check(path, rng):
 
     seen = {}
     for n in names:
-        if n.startswith("/"):
+        if not n.strip():
+            err("path-empty")
+        if n.startswith("/") or (len(n) > 1 and n[1] == ":" and n[0].isascii()
+                                 and n[0].isalpha()):
             err("absolute-path")
+        if "\\" in n:
+            err("path-backslash")
         parts = n.split("/")
-        if ".." in parts or "." in parts or "\\" in n:
+        if ".." in parts or "." in parts:
             err("path-traversal")
+        if any(p == "" for p in parts):
+            err("path-empty-segment")
+        if n != unicodedata.normalize("NFC", n):
+            err("path-not-normalized")
         key = unicodedata.normalize("NFC", n).casefold()
         if key in seen:
             err("duplicate-logical-entry")
         seen[key] = n
+
+    # 13.1, default profile. The declared sizes are the producer's claim, so the
+    # ratio is checked against them and the actual output is checked against the
+    # claim: an archive that under-declares passes every test made on paper.
+    if len(names) > MAX_ENTRIES:
+        err("entry-count-limit")
+
+    declared_total = 0
+    for info in z.infolist():
+        declared_total += info.file_size
+        if (info.file_size > RATIO_FLOOR and info.compress_size
+                and info.file_size > info.compress_size * MAX_RATIO):
+            err("compression-ratio-limit")
+        actual = actual_size(raw, info)
+        if actual is not None and actual > info.file_size:
+            err("declared-size-mismatch")
+
+    if declared_total > min(TOTAL_UNCOMPRESSED, len(raw) * ARCHIVE_MULTIPLE):
+        err("uncompressed-size-limit")
 
     # ---- layer 2: XML
     docs = {}
