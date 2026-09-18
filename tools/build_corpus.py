@@ -271,6 +271,11 @@ case("L1-case-fold-duplicate", "error", "duplicate-logical-entry",
      "Two entries differing only by case fold to the same logical name.",
      extra_entries=[("pages/001.JPG", PAGES["pages/001.jpg"])])
 
+case("L1-full-case-fold-duplicate", "error", "duplicate-logical-entry",
+     "Two entries that collide under full case folding but not under simple.",
+     extra_entries=[("extras/stra\u00dfe.bin", b"x"),
+                    ("extras/STRASSE.bin", b"x")])
+
 # 16 KiB of incompressible ballast so that the archive is large enough for the
 # 100x total rule of 13.1 not to fire as well: the package must breach one
 # limit, not two, or it cannot tell an implementation which one it got wrong.

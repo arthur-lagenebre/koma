@@ -82,7 +82,7 @@ Allowed ZIP compression methods:
 
 ZIP64 MUST be supported when required. Multipart archives and ZIP encryption are forbidden. Symlinks and other link-like entries are forbidden.
 
-File names MUST use UTF-8, `/` separators and Unicode NFC. Paths are package-root-relative. Absolute paths, `.` segments, `..` segments, backslashes and traversal constructs are forbidden. Logical names MUST be unique after Unicode normalization and case folding.
+File names MUST use UTF-8, `/` separators and Unicode NFC. Paths are package-root-relative. Absolute paths, `.` segments, `..` segments, backslashes and traversal constructs are forbidden. Logical names MUST be unique after Unicode normalization and case folding. Case folding here means Unicode **full** case folding, as in default caseless matching: `straße.webp` and `STRASSE.webp` are the same logical name. Simple folding keeps them apart, so the two produce different verdicts on the same package and the choice cannot be left to the implementation.
 
 ZIP timestamps, comments and non-semantic extra fields are not KOMA metadata and MUST NOT affect publication identity (§7.2.1). Deterministic packaging is specified in §14.2.
 
@@ -1238,6 +1238,7 @@ This projection is lossy in both directions and is not a storage format. A tool 
 - §13.1: the limits become a normative default profile rather than configurable recommendations, since §15 counted them as validation while §13.1 let each reader choose its own thresholds. The per-entry ratio clause excepted entries "within the absolute limits", which were the global totals, so it could never fire; it now excepts entries of at most 1 MiB. Declared sizes are stated to be untrusted, and enforcement during decompression is required.
 - §15: container validation names the default profile; two errors added.
 - §15.1: error codes defined, and the conformance corpus moves to §15.2. §15.2 required a validator to report a *named* error, and `expected.json` named them, but no section said the names were normative or what to call a defect the corpus does not exercise. Two conforming validators could therefore produce incomparable output, which §5.0.1 criterion 3 cannot tolerate. The corpus vocabulary is declared normative and the container-layer gaps are filled; the drive-letter reading of `absolute-path` is stated. Historical entries below still cite §15.1 for the corpus, as they described it at the time.
+- §3: case folding is stated to be the full folding, not the simple one. The two disagree on `ß` against `ss`, and two implementations written against the previous wording already disagreed on the same package. A corpus case covers it.
 
 ### 0.9, fourth draft
 

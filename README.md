@@ -36,7 +36,7 @@ pip install -r requirements.txt
 
 python tests/test_schemas.py      # schemas accept the valid, reject 33 invalid
 python tests/test_spread.py       # pairing against 15 hand-written cases
-python tests/test_corpus.py       # committed and rebuilt corpus, 30 packages
+python tests/test_corpus.py       # committed and rebuilt corpus, 31 packages
 python tests/test_converter.py    # 3 CBZ fixtures, conformance and determinism
 python tests/test_docs.py         # the counters above, kept honest
 

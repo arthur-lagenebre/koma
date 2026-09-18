@@ -56,6 +56,12 @@
       "note": "Two entries differing only by case fold to the same logical name."
     },
     {
+      "package": "L1-full-case-fold-duplicate.koma",
+      "outcome": "error",
+      "code": "duplicate-logical-entry",
+      "note": "Two entries that collide under full case folding but not under simple."
+    },
+    {
       "package": "L1-compression-ratio.koma",
       "outcome": "error",
       "code": "compression-ratio-limit",

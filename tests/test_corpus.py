@@ -27,7 +27,7 @@ from check_corpus import check           # noqa: E402
 from test_schemas import compile_schemas  # noqa: E402
 
 
-EXPECTED_PACKAGES = 30
+EXPECTED_PACKAGES = 31
 
 
 def run(directory, expected, rng, label):
