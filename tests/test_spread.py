@@ -7,6 +7,7 @@ specification. Never regenerate them from the implementation: doing so would
 let a bug in the code silently become the definition of the format.
 """
 
+import json
 import os
 import re
 import sys
@@ -16,6 +17,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(
 
 from koma_spread import paginate, PSEUDOCODE   # noqa: E402
 from spread_cases import CASES, spine     # noqa: E402
+import build_spread_cases                 # noqa: E402
 
 
 EXPECTED_CASES = 15
@@ -60,6 +62,24 @@ def main():
     if len(CASES) != EXPECTED_CASES:
         print(f"FAIL     expected {EXPECTED_CASES} pairing cases, found {len(CASES)}")
         structural_failures += 1
+
+    # corpus/spread-cases.json is what an implementation in any other language
+    # reads. A committed copy that has drifted from the fixtures would hand a
+    # third-party reading system expectations this repository no longer holds.
+    fresh = json.dumps(build_spread_cases.document(), indent=2,
+                       ensure_ascii=False) + "\n"
+    try:
+        committed = open(build_spread_cases.OUT, encoding="utf-8").read()
+    except FileNotFoundError:
+        committed = None
+    if committed is None:
+        print("FAIL     corpus/spread-cases.json is missing; run tools/build_spread_cases.py")
+        structural_failures += 1
+    elif committed != fresh:
+        print("FAIL     corpus/spread-cases.json has drifted; run tools/build_spread_cases.py")
+        structural_failures += 1
+    else:
+        print("ok       corpus/spread-cases.json matches the fixtures")
     for c in CASES:
         got = paginate(spine(c["spine"]), c["direction"], c["spread"],
                        c.get("viewport", True))

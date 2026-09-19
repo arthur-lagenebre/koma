@@ -1,0 +1,643 @@
+{
+  "specification": "KOMA 0.9",
+  "note": "Generated from tools/spread_cases.py. Expectations are written by hand from section 10 and are normative by example.",
+  "cases": [
+    {
+      "id": "10.6-worked-example",
+      "note": "The example printed in section 10.6. Cover alone by rule 4, then p1 leading (right, rtl), p2 trailing, the span-2 alone, and p3 left over on the leading side.",
+      "direction": "rtl",
+      "spread": "auto",
+      "viewport": true,
+      "spine": [
+        {
+          "item": "c",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": [
+            "front-cover"
+          ]
+        },
+        {
+          "item": "p1",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        },
+        {
+          "item": "p2",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        },
+        {
+          "item": "d",
+          "page_span": 2,
+          "spread_position": "auto",
+          "roles": []
+        },
+        {
+          "item": "p3",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        }
+      ],
+      "expected": [
+        {
+          "center": "c"
+        },
+        {
+          "left": "p2",
+          "right": "p1"
+        },
+        {
+          "center": "d"
+        },
+        {
+          "left": null,
+          "right": "p3"
+        }
+      ]
+    },
+    {
+      "id": "same-spine-ltr",
+      "note": "Identical spine read left to right. Only the physical sides change; the grouping is the same.",
+      "direction": "ltr",
+      "spread": "auto",
+      "viewport": true,
+      "spine": [
+        {
+          "item": "c",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": [
+            "front-cover"
+          ]
+        },
+        {
+          "item": "p1",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        },
+        {
+          "item": "p2",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        },
+        {
+          "item": "d",
+          "page_span": 2,
+          "spread_position": "auto",
+          "roles": []
+        },
+        {
+          "item": "p3",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        }
+      ],
+      "expected": [
+        {
+          "center": "c"
+        },
+        {
+          "left": "p1",
+          "right": "p2"
+        },
+        {
+          "center": "d"
+        },
+        {
+          "left": "p3",
+          "right": null
+        }
+      ]
+    },
+    {
+      "id": "cover-paired-explicitly",
+      "note": "Rule 3 beats rule 4: an explicit side on the cover makes it pair with the next page instead of standing alone.",
+      "direction": "rtl",
+      "spread": "auto",
+      "viewport": true,
+      "spine": [
+        {
+          "item": "c",
+          "page_span": 1,
+          "spread_position": "right!cover",
+          "roles": []
+        },
+        {
+          "item": "p1",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        },
+        {
+          "item": "p2",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        }
+      ],
+      "expected": [
+        {
+          "left": "p1",
+          "right": "c"
+        },
+        {
+          "left": null,
+          "right": "p2"
+        }
+      ]
+    },
+    {
+      "id": "no-cover-role",
+      "note": "Without the front-cover role and without an explicit side, the first page simply flows. This is why rule 4 exists.",
+      "direction": "ltr",
+      "spread": "auto",
+      "viewport": true,
+      "spine": [
+        {
+          "item": "p1",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        },
+        {
+          "item": "p2",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        },
+        {
+          "item": "p3",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        },
+        {
+          "item": "p4",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        }
+      ],
+      "expected": [
+        {
+          "left": "p1",
+          "right": "p2"
+        },
+        {
+          "left": "p3",
+          "right": "p4"
+        }
+      ]
+    },
+    {
+      "id": "span2-flushes-half-full-buffer",
+      "note": "A span-2 item interrupts a pair in progress; the half-full spread is emitted before it.",
+      "direction": "ltr",
+      "spread": "auto",
+      "viewport": true,
+      "spine": [
+        {
+          "item": "p1",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        },
+        {
+          "item": "d",
+          "page_span": 2,
+          "spread_position": "auto",
+          "roles": []
+        },
+        {
+          "item": "p2",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        },
+        {
+          "item": "p3",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        }
+      ],
+      "expected": [
+        {
+          "left": "p1",
+          "right": null
+        },
+        {
+          "center": "d"
+        },
+        {
+          "left": "p2",
+          "right": "p3"
+        }
+      ]
+    },
+    {
+      "id": "center-mid-sequence",
+      "note": "spread_position=center behaves exactly like a span-2 item for pairing purposes.",
+      "direction": "ltr",
+      "spread": "auto",
+      "viewport": true,
+      "spine": [
+        {
+          "item": "p1",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        },
+        {
+          "item": "p2",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        },
+        {
+          "item": "x",
+          "page_span": 1,
+          "spread_position": "center",
+          "roles": []
+        },
+        {
+          "item": "p3",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        }
+      ],
+      "expected": [
+        {
+          "left": "p1",
+          "right": "p2"
+        },
+        {
+          "center": "x"
+        },
+        {
+          "left": "p3",
+          "right": null
+        }
+      ]
+    },
+    {
+      "id": "fixed-side-already-occupied",
+      "note": "A fixed page whose side is taken forces the current spread out and starts a new one, leaving a blank half.",
+      "direction": "ltr",
+      "spread": "auto",
+      "viewport": true,
+      "spine": [
+        {
+          "item": "p1",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        },
+        {
+          "item": "p2",
+          "page_span": 1,
+          "spread_position": "left",
+          "roles": []
+        },
+        {
+          "item": "p3",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        }
+      ],
+      "expected": [
+        {
+          "left": "p1",
+          "right": null
+        },
+        {
+          "left": "p2",
+          "right": "p3"
+        }
+      ]
+    },
+    {
+      "id": "fixed-trailing-then-flow",
+      "note": "A page fixed to the trailing side leaves the leading half free, but a flowing page MUST NOT take it: p2 follows p1 in the spine and the leading side is read first, so filling it would invert the reading order (section 10.4, spine-order invariant). The half-spread is emitted and p2 opens the next one.",
+      "direction": "ltr",
+      "spread": "auto",
+      "viewport": true,
+      "spine": [
+        {
+          "item": "p1",
+          "page_span": 1,
+          "spread_position": "right",
+          "roles": []
+        },
+        {
+          "item": "p2",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        },
+        {
+          "item": "p3",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        }
+      ],
+      "expected": [
+        {
+          "left": null,
+          "right": "p1"
+        },
+        {
+          "left": "p2",
+          "right": "p3"
+        }
+      ]
+    },
+    {
+      "id": "spine-order-invariant-rtl",
+      "note": "Same situation mirrored. p1 is pinned to the left, which is the trailing side in rtl, so p2 cannot back-fill the right half.",
+      "direction": "rtl",
+      "spread": "auto",
+      "viewport": true,
+      "spine": [
+        {
+          "item": "p1",
+          "page_span": 1,
+          "spread_position": "left",
+          "roles": []
+        },
+        {
+          "item": "p2",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        },
+        {
+          "item": "p3",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        }
+      ],
+      "expected": [
+        {
+          "left": "p1",
+          "right": null
+        },
+        {
+          "left": "p3",
+          "right": "p2"
+        }
+      ]
+    },
+    {
+      "id": "alternating-fixed",
+      "note": "Fully hand-positioned publication: every page states its side.",
+      "direction": "rtl",
+      "spread": "auto",
+      "viewport": true,
+      "spine": [
+        {
+          "item": "a",
+          "page_span": 1,
+          "spread_position": "right",
+          "roles": []
+        },
+        {
+          "item": "b",
+          "page_span": 1,
+          "spread_position": "left",
+          "roles": []
+        },
+        {
+          "item": "c",
+          "page_span": 1,
+          "spread_position": "right",
+          "roles": []
+        },
+        {
+          "item": "d",
+          "page_span": 1,
+          "spread_position": "left",
+          "roles": []
+        }
+      ],
+      "expected": [
+        {
+          "left": "b",
+          "right": "a"
+        },
+        {
+          "left": "d",
+          "right": "c"
+        }
+      ]
+    },
+    {
+      "id": "consecutive-span2",
+      "note": "Two span-2 items in a row each get their own spread.",
+      "direction": "rtl",
+      "spread": "auto",
+      "viewport": true,
+      "spine": [
+        {
+          "item": "d1",
+          "page_span": 2,
+          "spread_position": "auto",
+          "roles": []
+        },
+        {
+          "item": "d2",
+          "page_span": 2,
+          "spread_position": "auto",
+          "roles": []
+        }
+      ],
+      "expected": [
+        {
+          "center": "d1"
+        },
+        {
+          "center": "d2"
+        }
+      ]
+    },
+    {
+      "id": "single-mode-spread-none",
+      "note": "Section 10.1: with spread=none the pairing algorithm is not run at all and spread_position is ignored.",
+      "direction": "rtl",
+      "spread": "none",
+      "viewport": true,
+      "spine": [
+        {
+          "item": "c",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": [
+            "front-cover"
+          ]
+        },
+        {
+          "item": "p1",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        },
+        {
+          "item": "p2",
+          "page_span": 1,
+          "spread_position": "left",
+          "roles": []
+        },
+        {
+          "item": "d",
+          "page_span": 2,
+          "spread_position": "auto",
+          "roles": []
+        }
+      ],
+      "expected": [
+        {
+          "single": "c"
+        },
+        {
+          "single": "p1"
+        },
+        {
+          "single": "p2"
+        },
+        {
+          "single": "d"
+        }
+      ]
+    },
+    {
+      "id": "single-mode-narrow-viewport",
+      "note": "spread=force falls back to single mode when the viewport cannot show two items side by side.",
+      "direction": "ltr",
+      "spread": "force",
+      "viewport": false,
+      "spine": [
+        {
+          "item": "c",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": [
+            "front-cover"
+          ]
+        },
+        {
+          "item": "p1",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        },
+        {
+          "item": "p2",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        }
+      ],
+      "expected": [
+        {
+          "single": "c"
+        },
+        {
+          "single": "p1"
+        },
+        {
+          "single": "p2"
+        }
+      ]
+    },
+    {
+      "id": "cover-not-first",
+      "note": "Rule 4 keys on the role, not on the position in the spine. A misplaced cover still stands alone; layer 3 warns separately.",
+      "direction": "ltr",
+      "spread": "auto",
+      "viewport": true,
+      "spine": [
+        {
+          "item": "p1",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        },
+        {
+          "item": "c",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": [
+            "front-cover"
+          ]
+        },
+        {
+          "item": "p2",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        }
+      ],
+      "expected": [
+        {
+          "left": "p1",
+          "right": null
+        },
+        {
+          "center": "c"
+        },
+        {
+          "left": "p2",
+          "right": null
+        }
+      ]
+    },
+    {
+      "id": "odd-tail-leading-only",
+      "note": "The final incomplete spread keeps the trailing half empty.",
+      "direction": "rtl",
+      "spread": "auto",
+      "viewport": true,
+      "spine": [
+        {
+          "item": "p1",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        },
+        {
+          "item": "p2",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        },
+        {
+          "item": "p3",
+          "page_span": 1,
+          "spread_position": "auto",
+          "roles": []
+        }
+      ],
+      "expected": [
+        {
+          "left": "p2",
+          "right": "p1"
+        },
+        {
+          "left": null,
+          "right": "p3"
+        }
+      ]
+    }
+  ]
+}
