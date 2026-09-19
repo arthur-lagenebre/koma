@@ -13,6 +13,12 @@ are the convention that stands in for it.
 
 ## Unreleased
 
+- §15.1 extended past the container layer. The section named only layer-1
+  codes, while the reference validator already emitted twelve others that no
+  corpus case exercises and no section defined, among them the whole
+  `schema-invalid:` family and one warning. The table now covers every code the
+  validator uses, with its layer and whether it is an error or a warning.
+
 - §15.1 added: error codes. The corpus named errors and §15.1 required a
   validator to report a named error, but no section said those names were
   normative, nor what to call a defect the corpus does not exercise. Two

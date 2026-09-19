@@ -1092,18 +1092,39 @@ Every result a validator reports carries a code. The codes are those used in `co
 
 A code is lowercase ASCII with `-` as separator. Codes are stable: a code is never reused for a different defect, and a defect that later acquires a corpus case keeps the code assigned here.
 
-Container-layer codes with no corpus case:
+Codes with no corpus case, by the layer of §15 that reports them. The result
+column says whether a conforming validator reports the defect as an error or a
+warning.
 
-| Code | Defect |
-| --- | --- |
-| `path-empty` | Entry name empty or whitespace only (§3). |
-| `path-backslash` | Entry name containing a backslash (§3). |
-| `path-empty-segment` | Entry name with a leading, trailing or doubled `/` (§3). |
-| `path-not-normalized` | Entry name not in Unicode NFC (§3). |
-| `entry-count-limit` | More ZIP entries than the default profile allows (§13.1). |
-| `uncompressed-size-limit` | Declared total uncompressed size above the default profile (§13.1). |
-| `compression-ratio-limit` | Entry whose declared compression ratio exceeds the default profile (§13.1). |
-| `declared-size-mismatch` | Entry producing more bytes than its own central directory declares (§13.1). |
+| Layer | Code | Result | Defect |
+| --- | --- | --- | --- |
+| 1 | `not-a-zip` | error | No end-of-central-directory record, or one pointing outside the file (§3). |
+| 1 | `multipart-archive` | error | The archive spans more than one disk (§3). |
+| 1 | `path-empty` | error | Entry name empty or whitespace only (§3). |
+| 1 | `path-backslash` | error | Entry name containing a backslash (§3). |
+| 1 | `path-empty-segment` | error | Entry name with a leading, trailing or doubled `/` (§3). |
+| 1 | `path-not-normalized` | error | Entry name not in Unicode NFC (§3). |
+| 1 | `entry-count-limit` | error | More ZIP entries than the default profile allows (§13.1). |
+| 1 | `uncompressed-size-limit` | error | Declared total uncompressed size above the default profile (§13.1). |
+| 1 | `compression-ratio-limit` | error | Entry whose declared compression ratio exceeds the default profile (§13.1). |
+| 1 | `declared-size-mismatch` | error | Entry producing more bytes than its own central directory declares (§13.1). |
+| 2 | `missing-required-xml` | error | A core document §1 requires is absent, or a `RootFile` points at one that is (§6). |
+| 2 | `xml-not-well-formed` | error | A core document is not well-formed XML, or carries a document type declaration (§13). |
+| 2 | `schema-invalid:container` | error | `META-INF/container.xml` does not satisfy its schema. |
+| 2 | `schema-invalid:metadata` | error | `koma/metadata.xml` does not satisfy its schema. |
+| 2 | `schema-invalid:manifest` | error | `koma/manifest.xml` does not satisfy its schema. |
+| 2 | `schema-invalid:navigation` | error | `koma/nav.xml` does not satisfy its schema. |
+| 2 | `xml-document-size-limit` | error | A core document larger than the default profile allows (§13.1). |
+| 2 | `xml-nesting-limit` | error | A core document nested deeper than the default profile allows (§13.1). |
+| 3 | `landmark-duplicate-type` | error | Two landmarks of the same type (§9). |
+| 3 | `undeclared-page-resource` | error | A spine item with no manifest entry (§8). |
+| 3 | `no-publication-accessibility` | warning | The publication declares no accessibility metadata (§7.13). |
+| 4 | `missing-page-resource` | error | A manifest item whose resource is not in the package (§8). |
+| 4 | `unreadable-page-resource` | error | A page resource that cannot be decoded (§12). |
+
+The `schema-invalid:` family is the one code whose spelling carries a
+parameter: the part after the colon names the core document, and no other code
+takes that form.
 
 A drive-letter prefix such as `C:/` is an absolute path for the purpose of `absolute-path`, although it does not begin with a separator.
 
@@ -1233,6 +1254,7 @@ This projection is lossy in both directions and is not a storage format. A tool 
 
 ### 0.9, fifth draft (this document)
 
+- §15.1: the code table is extended past the container layer and gains a result column. The section named only layer-1 codes, while the reference validator already emitted twelve others — among them the whole `schema-invalid:` family and one warning — that no corpus case exercises and no section defined. A validator had nothing to write for them but a name of its own.
 - §10.4: the **pseudocode** now expresses the spine-order invariant. The fourth draft added the invariant as a paragraph and changed the reference implementation, but left the normative pseudocode back-filling exactly as before, so the section prescribed two different behaviours for the same case. Found by external review; the paragraph, the pseudocode, the implementation and the fixtures now agree.
 - §5.0: the publication trigger that governs when a `0.x` number must move is stated here, normatively, instead of only in `CONTRIBUTING.md` and in this informative annex, which referred to "§5.0" for a rule §5.0 did not contain. The conformance corpus is excepted from it.
 - §13.1: the limits become a normative default profile rather than configurable recommendations, since §15 counted them as validation while §13.1 let each reader choose its own thresholds. The per-entry ratio clause excepted entries "within the absolute limits", which were the global totals, so it could never fire; it now excepts entries of at most 1 MiB. Declared sizes are stated to be untrusted, and enforcement during decompression is required.
