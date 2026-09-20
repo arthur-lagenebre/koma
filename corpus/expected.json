@@ -26,6 +26,18 @@
       "note": "A background colour in lowercase: read either way, serialised uppercase."
     },
     {
+      "package": "valid-icc-profiles.koma",
+      "outcome": "valid",
+      "code": null,
+      "note": "Pages 1, 2 and 4, a JPEG, a PNG and a WebP, each store (200, 50, 50) with an embedded wide-gamut profile; in sRGB that is about (232, 46, 46)."
+    },
+    {
+      "package": "valid-png-gamma.koma",
+      "outcome": "valid",
+      "code": null,
+      "note": "Page 2 stores grey 128 with gAMA 1.0 and no profile; in sRGB that is about 188."
+    },
+    {
       "package": "valid-page-list.koma",
       "outcome": "valid",
       "code": null,

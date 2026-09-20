@@ -11,9 +11,10 @@ import json
 import os
 import random
 import shutil
+import struct
 import zipfile
 
-from PIL import Image
+from PIL import Image, PngImagePlugin
 
 # The corpus lives at <repo>/corpus: expected.json beside a packages/
 # directory. build() takes an explicit destination so that a rebuild for
@@ -45,6 +46,71 @@ def bilevel_png(w, h):
     # still costs a few kilobytes to ship and little memory to build.
     buf = io.BytesIO()
     Image.new("1", (w, h), 1).save(buf, "PNG")
+    return buf.getvalue()
+
+
+def _s15f16(x):
+    return struct.pack(">i", round(x * 65536))
+
+
+def _xyz(x, y, z):
+    return b"XYZ " + b"\0" * 4 + _s15f16(x) + _s15f16(y) + _s15f16(z)
+
+
+def _gamma_curve(gamma):
+    return b"curv" + b"\0" * 4 + struct.pack(">IH", 1, round(gamma * 256))
+
+
+def _description(text):
+    ascii_text = text.encode("ascii") + b"\0"
+    return (b"desc" + b"\0" * 4 + struct.pack(">I", len(ascii_text)) + ascii_text
+            + b"\0" * 4 + b"\0" * 4 + b"\0" * 3 + b"\0" * 67)
+
+
+def matrix_profile(name, red, green, blue, gamma):
+    """An ICC v2 matrix/TRC display profile, written out by hand.
+
+    Hand-written so that the corpus carries no third-party profile and its
+    licence: the primaries are the published numbers of the colour space and
+    the bytes are this function's. Colorants are D50-adapted, as ICC v2
+    requires.
+    """
+    tags = [(b"desc", _description(name)),
+            (b"cprt", b"text" + b"\0" * 4 + b"No copyright, use freely\0"),
+            (b"wtpt", _xyz(0.9642, 1.0, 0.8249)),
+            (b"rXYZ", _xyz(*red)), (b"gXYZ", _xyz(*green)), (b"bXYZ", _xyz(*blue)),
+            (b"rTRC", _gamma_curve(gamma)), (b"gTRC", _gamma_curve(gamma)),
+            (b"bTRC", _gamma_curve(gamma))]
+    table = struct.pack(">I", len(tags))
+    body = b""
+    first = 128 + 4 + 12 * len(tags)
+    for signature, data in tags:
+        data += b"\0" * (-len(data) % 4)
+        table += signature + struct.pack(">II", first + len(body), len(data))
+        body += data
+    header = (struct.pack(">I", 128 + len(table) + len(body)) + b"none"
+              + struct.pack(">I", 0x02100000) + b"mntrRGB XYZ " + b"\0" * 12
+              + b"acsp" + b"\0" * 24 + b"\0" * 4
+              + _s15f16(0.9642) + _s15f16(1.0) + _s15f16(0.8249) + b"\0" * 48)
+    assert len(header) == 128
+    return header + table + body
+
+
+# Wide enough that a reader which ignores it is visibly wrong: (200, 50, 50)
+# in this space is about (232, 46, 46) in sRGB. The primaries are those of
+# Adobe RGB (1998), D50-adapted; the name is the corpus's own.
+WIDE_GAMUT = matrix_profile("KOMA corpus wide-gamut profile",
+                            (0.6097, 0.3111, 0.0195), (0.2053, 0.6257, 0.0609),
+                            (0.1492, 0.0632, 0.7446), 563 / 256)
+
+
+def linear_png(w, h, grey):
+    # gAMA of 1.0 and no iCCP: the stored value is linear light, so 128 is
+    # half the light, which sRGB writes as about 188.
+    info = PngImagePlugin.PngInfo()
+    info.add(b"gAMA", struct.pack(">I", 100000))
+    buf = io.BytesIO()
+    Image.new("RGB", (w, h), (grey, grey, grey)).save(buf, "PNG", pnginfo=info)
     return buf.getvalue()
 
 
@@ -277,6 +343,22 @@ case("valid-lowercase-color", "warning", "color-lowercase",
      "A background colour in lowercase: read either way, serialised uppercase.",
      mutate=sub(M, 'roles="story"/>\n    <Item id="p003"',
                 'roles="story" background-color="#f0f0f0"/>\n    <Item id="p003"'))
+
+case("valid-icc-profiles", "valid", None,
+     "Pages 1, 2 and 4, a JPEG, a PNG and a WebP, each store (200, 50, 50) "
+     "with an embedded wide-gamut profile; in sRGB that is about (232, 46, 46).",
+     pages_override={
+         "pages/001.jpg": img(800, 1200, "JPEG", (200, 50, 50),
+                              icc_profile=WIDE_GAMUT, quality=95),
+         "pages/002.png": img(800, 1200, "PNG", (200, 50, 50),
+                              icc_profile=WIDE_GAMUT),
+         "pages/004.webp": img(1600, 1200, "WEBP", (200, 50, 50),
+                               icc_profile=WIDE_GAMUT, quality=95)})
+
+case("valid-png-gamma", "valid", None,
+     "Page 2 stores grey 128 with gAMA 1.0 and no profile; in sRGB that is "
+     "about 188.",
+     pages_override={"pages/002.png": linear_png(800, 1200, 128)})
 
 case("valid-page-list", "valid", None,
      "A page list, with the two-page spread labelled half by half.",

@@ -713,8 +713,8 @@ A reading system MUST ignore EXIF orientation entirely and MUST render pixels as
 ### 8.3 Colour management
 
 - A page resource MAY embed an ICC profile (JPEG `APP2`, PNG `iCCP`, WebP `ICCP`).
-- When a profile is embedded, a reading system SHOULD apply it. When it cannot, it MUST fall back to treating the data as sRGB and MUST NOT fail.
-- When no profile is embedded, the colour space is sRGB (IEC 61966-2-1) for RGB data, and the sRGB transfer function for grayscale data. PNG `sRGB`, `gAMA` and `cHRM` chunks are honoured in the absence of `iCCP`.
+- When a profile is embedded, a reading system SHOULD apply it. When it cannot, whether because it does not manage colour or because the profile does not parse, it MUST fall back to treating the data as sRGB and MUST NOT fail.
+- When no profile is embedded, the colour space is sRGB (IEC 61966-2-1) for RGB data, and the sRGB transfer function for grayscale data. In the absence of `iCCP`, a reading system SHOULD honour a PNG `sRGB` chunk, and otherwise its `gAMA` and `cHRM` chunks, in the precedence the PNG specification gives them.
 - Producers MUST NOT remove an embedded ICC profile when stripping metadata under §13. Wide-gamut profiles are permitted.
 - `Content/@color-mode` is descriptive and MUST NOT drive any conversion.
 
@@ -1273,6 +1273,7 @@ This projection is lossy in both directions and is not a storage format. A tool 
 
 ### 0.9, fifth draft (this document)
 
+- §8.3: the PNG `sRGB`, `gAMA` and `cHRM` chunks were said to be "honoured", with no keyword and no order; a reading system now SHOULD honour them, as it SHOULD apply a profile, in the precedence of the PNG specification. A profile that does not parse is named as a case of the fallback to sRGB. The corpus gains two valid packages a reading system can check its colour management against, the first to carry any colour information: `valid-icc-profiles`, a JPEG, a PNG and a WebP page each with an embedded wide-gamut profile, and `valid-png-gamma`, a PNG page with a linear `gAMA` and no profile.
 - §4.3, §4.5, §16: **unknown tokens and lowercase colours** get codes, `unknown-token` and `color-lowercase`; the first is an error in strict mode, the second a warning, and §15.1 had named neither. A reading system MAY present a publication with an unknown token after applying §4.5.1, provided it makes the fault known, as it may a page resource in error: the fallback table exists so that nothing is guessed. The reference validator now checks every open vocabulary of the specification, not only page roles, and the corpus gains a case for each code.
 - §9.2: the two **page-list rules** get codes, `pagetarget-duplicate` and `span1-pagetarget-position`. §15 listed both as errors and §15.1 named neither, so a validator could not report them without breaking the rule that forbids spelling a defect as another's code. Two targets both without `spread-position` are now stated to be duplicates, which the rule left implicit. The corpus gains a case for each, and a valid publication with a page list, which it had none of.
 - §13.1, §16: what a **reading system** does with a page resource in error. The specification had only two answers: reject a publication beyond the pixel limits, and render a page with residual EXIF orientation as stored. A reading system now withholds a page it cannot show safely (missing, undecodable, over its declared size, beyond the pixel limits) and MAY show one with any other layer-4 error, provided it makes the fault known. A withheld page keeps its place in the spine, and the publication is not presented as complete, in the sense §12.1 already gives to missing essential content. §13.1 says how a reading system that checks pages as it reaches them honours the rejection it requires.

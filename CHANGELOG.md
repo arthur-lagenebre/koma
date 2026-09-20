@@ -13,6 +13,12 @@ are the convention that stands in for it.
 
 ## Unreleased
 
+- §8.3: a reading system SHOULD honour the PNG `sRGB`, `gAMA` and `cHRM`
+  chunks, which the text called "honoured" with no keyword, and a profile that
+  does not parse falls back to sRGB like any profile that cannot be applied.
+  The corpus gains `valid-icc-profiles` and `valid-png-gamma`, its first pages
+  with colour information, each note giving the colour a reading system
+  should arrive at in sRGB.
 - §4.3, §4.5, §16: `unknown-token` for a token outside the core set of an open
   vocabulary that is not a valid private-use token, an error in strict mode,
   and `color-lowercase`, a warning. A reading system may present a publication
