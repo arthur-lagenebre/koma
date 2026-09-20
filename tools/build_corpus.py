@@ -40,6 +40,14 @@ def animated_webp(w, h):
     return buf.getvalue()
 
 
+def bilevel_png(w, h):
+    # One bit per pixel and a flat field: a page past the pixel limits that
+    # still costs a few kilobytes to ship and little memory to build.
+    buf = io.BytesIO()
+    Image.new("1", (w, h), 1).save(buf, "PNG")
+    return buf.getvalue()
+
+
 def jpeg_with_orientation(w, h, orientation):
     im = Image.new("RGB", (w, h), (200, 200, 200))
     exif = im.getexif()
@@ -383,6 +391,18 @@ case("L4-wrong-dimensions", "error", "dimensions-mismatch",
 case("L4-animated-page", "error", "animated-page-resource",
      "An animated WebP is used as a page.",
      pages_override={"pages/004.webp": animated_webp(1600, 1200)})
+
+case("L4-page-too-wide", "error", "page-pixel-limit",
+     "A page 65 536 pixels wide, one past the per-side limit of the default profile.",
+     pages_override={"pages/002.png": bilevel_png(65_536, 1)},
+     mutate=sub(M, 'width="800" height="1200" roles="story"/>\n    <Item id="p003"',
+                'width="65536" height="1" roles="story"/>\n    <Item id="p003"'))
+
+case("L4-page-too-large", "error", "page-pixel-limit",
+     "A page of 10 001 by 10 000 pixels, past the 100 megapixels of the default profile.",
+     pages_override={"pages/002.png": bilevel_png(10_001, 10_000)},
+     mutate=sub(M, 'width="800" height="1200" roles="story"/>\n    <Item id="p003"',
+                'width="10001" height="10000" roles="story"/>\n    <Item id="p003"'))
 
 case("L4-failed-checksum", "error", "checksum-mismatch",
      "The declared digest does not match the stored bytes.",

@@ -18,6 +18,15 @@ import zlib
 from lxml import etree
 from PIL import Image
 
+# Section 13.1 sets the pixel limits, not Pillow. Left in place, Pillow's own
+# threshold warns about pages the default profile accepts, and above twice its
+# value fails in Image.open, which would report an oversized page as
+# unreadable instead of naming the limit it breaks.
+Image.MAX_IMAGE_PIXELS = None
+
+MAX_PIXELS_PER_PAGE = 100_000_000
+MAX_PIXELS_PER_SIDE = 65_535
+
 MIMETYPE = b"application/vnd.koma+zip"
 NS = {"c": "urn:koma:container", "m": "urn:koma:metadata",
       "f": "urn:koma:manifest", "n": "urn:koma:navigation"}
@@ -270,6 +279,12 @@ def check(path, rng):
             im = Image.open(io.BytesIO(data))
         except Exception:
             err("unreadable-page-resource")
+            continue
+        # Image.open reads the header only; nothing below may decode a page
+        # that is over the limit, which is the allocation 13.1 forbids.
+        if (im.width > MAX_PIXELS_PER_SIDE or im.height > MAX_PIXELS_PER_SIDE
+                or im.width * im.height > MAX_PIXELS_PER_PAGE):
+            err("page-pixel-limit")
             continue
         if (str(im.width) != it.get("width")
                 or str(im.height) != it.get("height")):

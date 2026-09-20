@@ -188,6 +188,18 @@
       "note": "An animated WebP is used as a page."
     },
     {
+      "package": "L4-page-too-wide.koma",
+      "outcome": "error",
+      "code": "page-pixel-limit",
+      "note": "A page 65 536 pixels wide, one past the per-side limit of the default profile."
+    },
+    {
+      "package": "L4-page-too-large.koma",
+      "outcome": "error",
+      "code": "page-pixel-limit",
+      "note": "A page of 10 001 by 10 000 pixels, past the 100 megapixels of the default profile."
+    },
+    {
       "package": "L4-failed-checksum.koma",
       "outcome": "error",
       "code": "checksum-mismatch",

@@ -989,6 +989,8 @@ The sizes declared in the ZIP central directory are chosen by the producer and M
 
 Exceeding a limit MUST result in a controlled failure, never in unbounded allocation.
 
+The pixel limits MUST be judged from the dimensions in the image header, before any pixel is decoded: a reader that decodes a page to learn its size has already made the allocation the limit exists to prevent. A page resource beyond them is `page-pixel-limit`.
+
 Forward-compatible processing (§5.3) MUST NOT relax any requirement in this section, and is not a ground for raising a limit.
 
 ## 14. Canonical serialization and packaging
@@ -1024,10 +1026,10 @@ Reproducible packaging is not required for conformance, and its absence MUST NOT
 
 A conforming validator performs four layers:
 
-1. **Container validation** — ZIP profile, mimetype bytes and offset, paths, uniqueness, the resource limits of the default profile (§13.1).
+1. **Container validation** — ZIP profile, mimetype bytes and offset, paths, uniqueness, the archive limits of the default profile (§13.1).
 2. **XML validation** — schemas, data types and lexical constraints, evaluated in the mode selected by §5.4.
 3. **Cross-document validation** — references, unique primary metadata, cover, navigation targets, spine constraints, region targets, accessibility consistency.
-4. **Resource validation** — actual MIME signatures, dimensions, animation, EXIF orientation residue, checksums, image and colour profile.
+4. **Resource validation** — actual MIME signatures, dimensions, the pixel limits of the default profile (§13.1), animation, EXIF orientation residue, checksums, image and colour profile.
 
 Examples of errors:
 
@@ -1054,6 +1056,7 @@ Examples of errors:
 - navigation or region target outside the spine;
 - more than one `RegionSequence` for the same item, or region coordinates outside the unit square;
 - wrong image dimensions or media type;
+- a page resource beyond the pixel limits of the default profile;
 - residual EXIF orientation other than `1`;
 - `page-span="2"` with `spread-position="left|right"`;
 - animated page resource;
@@ -1124,7 +1127,7 @@ warning.
 | 3 | `undeclared-page-resource` | error | A spine item with no manifest entry (§8). |
 | 3 | `no-publication-accessibility` | warning | The publication declares no accessibility metadata (§7.13). |
 | 4 | `missing-page-resource` | error | A manifest item whose resource is not in the package (§8). |
-| 4 | `unreadable-page-resource` | error | A page resource that cannot be decoded (§12). |
+| 4 | `unreadable-page-resource` | error | A page resource that cannot be decoded (§8.1). |
 
 The `schema-invalid:` family is the one code whose spelling carries a
 parameter: the part after the colon names the core document, and no other code
@@ -1259,6 +1262,7 @@ This projection is lossy in both directions and is not a storage format. A tool 
 
 ### 0.9, fifth draft (this document)
 
+- §13.1, §15: the **pixel limits** had no code, alone among the limits of the default profile, and the layer list of §15 filed every limit under container validation although these two can only be judged from an image header. They are now judged at layer 4, from the header and before decoding, and reported as `page-pixel-limit`, with a corpus case for each of the two limits. The reference validator had delegated them to Pillow, whose own threshold is lower than the default profile's and fails with a different error above twice its value, so a conforming page could be warned about and an oversized one misreported as unreadable. `unreadable-page-resource` pointed at §12, which is about extensions; it now points at §8.1.
 - §1, §6, §8: the core documents have **fixed paths**. §1 laid them out by name while `RootFile/@full-path`, `Manifest/@metadata` and `Manifest/@navigation` were typed `Path` and could point anywhere, so the reference validator read the names and an independent reader followed the attributes, and the two disagreed on a manifest naming a `nav.xml` the package did not contain. The attributes now MUST carry the fixed values, which the schemas enforce, and `@navigation` MUST agree with the presence of `koma/nav.xml`; `navigation-declaration-mismatch` names a disagreement either way, with a corpus case for each direction. `missing-required-xml` loses its `RootFile` clause, which described a defect that can no longer occur.
 - §15.1: the code table is extended past the container layer and gains a result column. The section named only layer-1 codes, while the reference validator already emitted twelve others — among them the whole `schema-invalid:` family and one warning — that no corpus case exercises and no section defined. A validator had nothing to write for them but a name of its own.
 - §10.4: the **pseudocode** now expresses the spine-order invariant. The fourth draft added the invariant as a paragraph and changed the reference implementation, but left the normative pseudocode back-filling exactly as before, so the section prescribed two different behaviours for the same case. Found by external review; the paragraph, the pseudocode, the implementation and the fixtures now agree.

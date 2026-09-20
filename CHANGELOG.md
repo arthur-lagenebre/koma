@@ -13,6 +13,11 @@ are the convention that stands in for it.
 
 ## Unreleased
 
+- §13.1, §15: the pixel limits of the default profile get a code,
+  `page-pixel-limit`, are judged at layer 4 from the image header before any
+  decoding, and have two corpus cases. `tools/check_corpus.py` no longer leaves
+  them to Pillow's own, lower threshold. `unreadable-page-resource` points at
+  §8.1 instead of §12.
 - §1, §6, §8: the core documents have fixed paths. §1 named them while the
   attributes of §6 and §8 were typed `Path`, so `tools/check_corpus.py` read
   the names and koma-desktop followed the attributes; the two disagreed on a
