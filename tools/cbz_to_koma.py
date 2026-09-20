@@ -366,9 +366,8 @@ def comicinfo_date(ci):
 
 def build_manifest(pages, checksums, has_nav):
     lines = ['<?xml version="1.0" encoding="UTF-8"?>',
-             '<Manifest xmlns="urn:koma:manifest" version="0.9"',
-             '          metadata="koma/metadata.xml"' +
-             ('' if not has_nav else '\n          navigation="koma/nav.xml"') + '>',
+             '<Manifest xmlns="urn:koma:manifest" version="0.9" metadata="koma/metadata.xml"'
+             + ('' if not has_nav else ' navigation="koma/nav.xml"') + '>',
              "  <Resources>"]
     for p in pages:
         attrs = dict(id=p["id"], href=p["href"], media_type=p["media_type"],
@@ -464,8 +463,7 @@ def write_koma(path, xml_files, pages_bytes, comicinfo):
 CONTAINER = """<?xml version="1.0" encoding="UTF-8"?>
 <Container xmlns="urn:koma:container" version="0.9">
   <RootFiles>
-    <RootFile full-path="koma/manifest.xml"
-              media-type="application/vnd.koma.manifest+xml"/>
+    <RootFile full-path="koma/manifest.xml" media-type="application/vnd.koma.manifest+xml"/>
   </RootFiles>
 </Container>
 """

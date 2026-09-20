@@ -1007,11 +1007,17 @@ An authoring tool MUST emit core documents that satisfy all of the following:
 - no DTD, no external entities, no CDATA sections, no processing instructions;
 - namespace declarations only on the root element, except for foreign content inside `Extensions`;
 - attributes serialized in the order given by this specification, with `id` first when present;
-- no insignificant whitespace inside elements that carry `Normalized` text.
+- no insignificant whitespace inside elements that carry `Normalized` text;
+- one element per line, indented with two spaces per level of depth, with every attribute of an element on the line of its start tag;
+- an element with no content written as an empty element, `<Name/>`;
+- an element whose content is text written on one line, `<Name>text</Name>`;
+- a final LF at the end of the document.
 
 The `version` pseudo-attribute of the XML declaration refers to the XML specification and is unrelated to the KOMA version of §5.
 
-These rules exist so that two tools producing the same logical publication produce byte-identical core documents.
+These rules exist so that two tools producing the same logical publication produce byte-identical core documents. The layout rules were added in this draft: without them the rule above could not be met, since nothing said where a document breaks its lines.
+
+`tools/canonical.py` in the specification repository is a reference serializer, and every core document of the corpus is written in this form.
 
 ### 14.2 Reproducible packaging
 
@@ -1273,6 +1279,7 @@ This projection is lossy in both directions and is not a storage format. A tool 
 
 ### 0.9, fifth draft (this document)
 
+- §14.1: the **canonical serialization** says how a document is laid out. It fixed the encoding, the declaration, the line endings and the order of attributes, then promised that two tools would produce byte-identical documents, while saying nothing about indentation or where lines break — a promise nothing could keep. One element per line, two spaces per level, attributes on the line of their start tag, text on the line of its element, and a final LF. The corpus, whose documents wrapped their attributes by hand, is rewritten in this form, and `tools/canonical.py` is the reference serializer that `tests/test_canonical.py` holds it to.
 - §8.3: the PNG `sRGB`, `gAMA` and `cHRM` chunks were said to be "honoured", with no keyword and no order; a reading system now SHOULD honour them, as it SHOULD apply a profile, in the precedence of the PNG specification. A profile that does not parse is named as a case of the fallback to sRGB. The corpus gains two valid packages a reading system can check its colour management against, the first to carry any colour information: `valid-icc-profiles`, a JPEG, a PNG and a WebP page each with an embedded wide-gamut profile, and `valid-png-gamma`, a PNG page with a linear `gAMA` and no profile.
 - §4.3, §4.5, §16: **unknown tokens and lowercase colours** get codes, `unknown-token` and `color-lowercase`; the first is an error in strict mode, the second a warning, and §15.1 had named neither. A reading system MAY present a publication with an unknown token after applying §4.5.1, provided it makes the fault known, as it may a page resource in error: the fallback table exists so that nothing is guessed. The reference validator now checks every open vocabulary of the specification, not only page roles, and the corpus gains a case for each code.
 - §9.2: the two **page-list rules** get codes, `pagetarget-duplicate` and `span1-pagetarget-position`. §15 listed both as errors and §15.1 named neither, so a validator could not report them without breaking the rule that forbids spelling a defect as another's code. Two targets both without `spread-position` are now stated to be duplicates, which the rule left implicit. The corpus gains a case for each, and a valid publication with a page list, which it had none of.

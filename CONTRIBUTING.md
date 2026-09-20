@@ -55,7 +55,7 @@ It hashes the LF content `.gitattributes` enforces, and it is how a copy of this
 
 ## What the tests are for
 
-Five suites, all of which CI runs: `test_schemas` for layer 2, `test_spread` for §10, `test_corpus` for §15.1, `test_converter` for the CBZ path, `test_docs` for the counters above.
+Six suites, all of which CI runs: `test_schemas` for layer 2, `test_spread` for §10, `test_corpus` for §15.1, `test_converter` for the CBZ path, `test_canonical` for §14.1, `test_docs` for the counters above.
 
 Normative prose that no test reads is worse still. §10.4 says its pseudocode is what a reading system MUST follow, so `tools/koma_spread.py` carries that pseudocode verbatim in `PSEUDOCODE` and `tests/test_spread.py` compares the two. Edit the specification without touching the implementation and the suite goes red. This exists because it once went wrong: a draft added an invariant as a paragraph, changed the implementation to match, and left the pseudocode prescribing the opposite behaviour.
 

@@ -38,6 +38,11 @@ jobs:
       - name: CBZ converter
         run: python tests/test_converter.py
 
+      # Section 14.1. The corpus is what an implementer reads to learn what
+      # canonical means, so the corpus is what is held to it.
+      - name: Canonical serialization
+        run: python tests/test_canonical.py
+
       # The counters quoted in README.md must match the artifacts.
       - name: Documentation counters
         run: python tests/test_docs.py

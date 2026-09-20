@@ -138,8 +138,7 @@ def sha256(b):
 CONTAINER = """<?xml version="1.0" encoding="UTF-8"?>
 <Container xmlns="urn:koma:container" version="0.9">
   <RootFiles>
-    <RootFile full-path="koma/manifest.xml"
-              media-type="application/vnd.koma.manifest+xml"/>
+    <RootFile full-path="koma/manifest.xml" media-type="application/vnd.koma.manifest+xml"/>
   </RootFiles>
 </Container>
 """
@@ -166,22 +165,17 @@ METADATA = """<?xml version="1.0" encoding="UTF-8"?>
 """
 
 MANIFEST = """<?xml version="1.0" encoding="UTF-8"?>
-<Manifest xmlns="urn:koma:manifest" version="0.9"
-          metadata="koma/metadata.xml" navigation="koma/nav.xml">
+<Manifest xmlns="urn:koma:manifest" version="0.9" metadata="koma/metadata.xml" navigation="koma/nav.xml">
   <Resources>
-    <Item id="p001" href="pages/001.jpg" media-type="image/jpeg"
-          width="800" height="1200" roles="front-cover">
+    <Item id="p001" href="pages/001.jpg" media-type="image/jpeg" width="800" height="1200" roles="front-cover">
       <Checksum algorithm="sha-256">{sum1}</Checksum>
       <Accessibility decorative="false">
         <AlternativeText xml:lang="fr">Couverture.</AlternativeText>
       </Accessibility>
     </Item>
-    <Item id="p002" href="pages/002.png" media-type="image/png"
-          width="800" height="1200" roles="story"/>
-    <Item id="p003" href="pages/003.png" media-type="image/png"
-          width="800" height="1200" roles="story"/>
-    <Item id="p004" href="pages/004.webp" media-type="image/webp"
-          width="1600" height="1200" roles="story" page-span="2"/>
+    <Item id="p002" href="pages/002.png" media-type="image/png" width="800" height="1200" roles="story"/>
+    <Item id="p003" href="pages/003.png" media-type="image/png" width="800" height="1200" roles="story"/>
+    <Item id="p004" href="pages/004.webp" media-type="image/webp" width="1600" height="1200" roles="story" page-span="2"/>
   </Resources>
   <Spine>
     <ItemRef item="p001"/>
@@ -195,7 +189,9 @@ MANIFEST = """<?xml version="1.0" encoding="UTF-8"?>
 NAV = """<?xml version="1.0" encoding="UTF-8"?>
 <Navigation xmlns="urn:koma:navigation" version="0.9" xml:lang="fr">
   <TableOfContents>
-    <Entry item="p002"><Label xml:lang="fr">Chapitre 1</Label></Entry>
+    <Entry item="p002">
+      <Label xml:lang="fr">Chapitre 1</Label>
+    </Entry>
   </TableOfContents>
   <Landmarks>
     <Landmark type="front-cover" item="p001"/>
@@ -416,10 +412,8 @@ case("L3-no-front-cover", "error", "front-cover-missing",
 
 case("L3-two-front-covers", "error", "front-cover-duplicate",
      "Two items claim the front cover.",
-     mutate=sub(M, 'href="pages/002.png" media-type="image/png"\n'
-                   '          width="800" height="1200" roles="story"',
-                'href="pages/002.png" media-type="image/png"\n'
-                '          width="800" height="1200" roles="front-cover"'))
+     mutate=sub(M, 'width="800" height="1200" roles="story"/>\n    <Item id="p003"',
+                'width="800" height="1200" roles="front-cover"/>\n    <Item id="p003"'))
 
 case("L3-private-token-as-cover", "error", "front-cover-missing",
      "A private-use token cannot satisfy the front-cover requirement.",

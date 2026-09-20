@@ -13,6 +13,13 @@ are the convention that stands in for it.
 
 ## Unreleased
 
+- §14.1: the canonical serialization now says how a document is laid out —
+  one element per line, two spaces per level, attributes on the line of their
+  start tag, text on the line of its element, a final LF — which the promise
+  of byte-identical documents needed and did not have. `tools/canonical.py`
+  is the reference serializer, `tests/test_canonical.py` holds the corpus and
+  the converter to it, and both the corpus and the converter now write this
+  form.
 - §8.3: a reading system SHOULD honour the PNG `sRGB`, `gAMA` and `cHRM`
   chunks, which the text called "honoured" with no keyword, and a profile that
   does not parse falls back to sRGB like any profile that cannot be applied.
