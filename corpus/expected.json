@@ -20,6 +20,12 @@
       "note": "x- tokens in an open vocabulary. Accepted, flagged."
     },
     {
+      "package": "valid-page-list.koma",
+      "outcome": "valid",
+      "code": null,
+      "note": "A page list, with the two-page spread labelled half by half."
+    },
+    {
       "package": "L1-mimetype-wrong-content.koma",
       "outcome": "error",
       "code": "mimetype-content",
@@ -132,6 +138,18 @@
       "outcome": "error",
       "code": "span2-spread-position",
       "note": "A two-page image cannot be pinned to a physical side."
+    },
+    {
+      "package": "L3-pagetarget-duplicate.koma",
+      "outcome": "error",
+      "code": "pagetarget-duplicate",
+      "note": "Two page labels for the left half of the two-page spread."
+    },
+    {
+      "package": "L3-span1-pagetarget-position.koma",
+      "outcome": "error",
+      "code": "span1-pagetarget-position",
+      "note": "A half is labelled on a single page."
     },
     {
       "package": "L3-hazard-contradiction.koma",

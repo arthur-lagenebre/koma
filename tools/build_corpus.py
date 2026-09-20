@@ -237,6 +237,24 @@ def chain(*fns):
 
 
 M = "koma/manifest.xml"
+
+# A page list over the four items of valid-minimal, the two-page spread
+# labelled half by half. Inserted after the table of contents, where §9
+# places it.
+PAGE_LIST = """  <PageList>
+    <PageTarget item="p001" label="i"/>
+    <PageTarget item="p002" label="1"/>
+    <PageTarget item="p003" label="2"/>
+    <PageTarget item="p004" label="3" spread-position="left"/>
+    <PageTarget item="p004" label="4" spread-position="right"/>
+  </PageList>
+"""
+
+
+def with_page_list(page_list=PAGE_LIST):
+    return sub(N, "  </TableOfContents>\n",
+               "  </TableOfContents>\n" + page_list)
+
 D = "koma/metadata.xml"
 N = "koma/nav.xml"
 
@@ -253,6 +271,10 @@ case("valid-no-navigation", "warning", "no-navigation-document",
 case("valid-private-use-tokens", "warning", "private-use-token",
      "x- tokens in an open vocabulary. Accepted, flagged.",
      mutate=sub(M, 'roles="story"', 'roles="story;x-splash"'))
+
+case("valid-page-list", "valid", None,
+     "A page list, with the two-page spread labelled half by half.",
+     mutate=with_page_list())
 
 # --- layer 1: container ------------------------------------------------
 case("L1-mimetype-wrong-content", "error", "mimetype-content",
@@ -345,6 +367,16 @@ case("L3-span2-with-side", "error", "span2-spread-position",
      "A two-page image cannot be pinned to a physical side.",
      mutate=sub(M, '<ItemRef item="p004"/>',
                 '<ItemRef item="p004" spread-position="left"/>'))
+
+case("L3-pagetarget-duplicate", "error", "pagetarget-duplicate",
+     "Two page labels for the left half of the two-page spread.",
+     mutate=with_page_list(PAGE_LIST.replace(
+         'label="4" spread-position="right"', 'label="4" spread-position="left"')))
+
+case("L3-span1-pagetarget-position", "error", "span1-pagetarget-position",
+     "A half is labelled on a single page.",
+     mutate=with_page_list(PAGE_LIST.replace(
+         'item="p002" label="1"/>', 'item="p002" label="1" spread-position="left"/>')))
 
 case("L3-hazard-contradiction", "error", "accessibility-hazard-conflict",
      "no-flashing-hazard declared alongside a flashing-images warning.",

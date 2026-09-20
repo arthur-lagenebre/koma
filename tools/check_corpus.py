@@ -228,6 +228,18 @@ def check(path, rng):
             target = el.get("item")
             if target is not None and target not in spine:
                 err("navigation-target-outside-spine")
+        # Section 9.2: an absent spread-position is a value of its own, so
+        # two whole-resource labels for one item are duplicates too.
+        seen_targets = set()
+        for pt in nav.iterfind(".//n:PageList/n:PageTarget", NS):
+            key = (pt.get("item"), pt.get("spread-position"))
+            if key in seen_targets:
+                err("pagetarget-duplicate")
+            seen_targets.add(key)
+            it = items.get(pt.get("item"))
+            if (pt.get("spread-position") is not None and it is not None
+                    and it.get("page-span", "1") != "2"):
+                err("span1-pagetarget-position")
         seen_types = set()
         for lm in nav.iterfind(".//n:Landmarks/n:Landmark", NS):
             if lm.get("type") in seen_types:
