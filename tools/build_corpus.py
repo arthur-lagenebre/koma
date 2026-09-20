@@ -239,14 +239,15 @@ def chain(*fns):
 M = "koma/manifest.xml"
 
 # A page list over the four items of valid-minimal, the two-page spread
-# labelled half by half. Inserted after the table of contents, where §9
+# labelled half by half. The publication reads right to left, so the right
+# half is the earlier page. Inserted after the table of contents, where §9
 # places it.
 PAGE_LIST = """  <PageList>
     <PageTarget item="p001" label="i"/>
     <PageTarget item="p002" label="1"/>
     <PageTarget item="p003" label="2"/>
-    <PageTarget item="p004" label="3" spread-position="left"/>
-    <PageTarget item="p004" label="4" spread-position="right"/>
+    <PageTarget item="p004" label="3" spread-position="right"/>
+    <PageTarget item="p004" label="4" spread-position="left"/>
   </PageList>
 """
 
@@ -369,9 +370,9 @@ case("L3-span2-with-side", "error", "span2-spread-position",
                 '<ItemRef item="p004" spread-position="left"/>'))
 
 case("L3-pagetarget-duplicate", "error", "pagetarget-duplicate",
-     "Two page labels for the left half of the two-page spread.",
+     "Two page labels for the right half of the two-page spread.",
      mutate=with_page_list(PAGE_LIST.replace(
-         'label="4" spread-position="right"', 'label="4" spread-position="left"')))
+         'label="4" spread-position="left"', 'label="4" spread-position="right"')))
 
 case("L3-span1-pagetarget-position", "error", "span1-pagetarget-position",
      "A half is labelled on a single page.",

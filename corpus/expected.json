@@ -143,7 +143,7 @@
       "package": "L3-pagetarget-duplicate.koma",
       "outcome": "error",
       "code": "pagetarget-duplicate",
-      "note": "Two page labels for the left half of the two-page spread."
+      "note": "Two page labels for the right half of the two-page spread."
     },
     {
       "package": "L3-span1-pagetarget-position.koma",

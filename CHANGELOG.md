@@ -17,6 +17,8 @@ are the convention that stands in for it.
   `span1-pagetarget-position`, and `tools/check_corpus.py` checks them. Two
   targets both without `spread-position` count as duplicates. The corpus gains
   a case for each and `valid-page-list`, its first package with a page list.
+  Its two-page spread was first labelled as if the publication read left to
+  right; the right half, read first, now carries the earlier number.
 - §13.1, §16: a reading system withholds a page resource it cannot show
   safely, may show one with any other layer-4 error if it says so, keeps a
   withheld page's place in the spine, and stops presenting the publication as
