@@ -13,6 +13,11 @@ are the convention that stands in for it.
 
 ## Unreleased
 
+- §13.1, §16: a reading system withholds a page resource it cannot show
+  safely, may show one with any other layer-4 error if it says so, keeps a
+  withheld page's place in the spine, and stops presenting the publication as
+  complete. §13.1 says how a reader that checks pages lazily honours the
+  rejection of a page beyond the pixel limits.
 - §13.1, §15: the pixel limits of the default profile get a code,
   `page-pixel-limit`, are judged at layer 4 from the image header before any
   decoding, and have two corpus cases. `tools/check_corpus.py` no longer leaves

@@ -985,6 +985,8 @@ A reader MUST bound resource use. The following values are the **default profile
 
 A reader MUST operate in the default profile unless the user has explicitly raised a limit, and in the default profile it MUST reject a publication that exceeds any of these values. A reader MAY offer a control to raise a limit; where a raised limit is in effect it MUST report that the publication lies outside the default profile, and it MUST NOT raise a limit on its own initiative. Conformance statements and validation (§15) concern the default profile alone.
 
+The pixel limits can only be judged from a page's own header, which a reading system MAY read when it reaches that page rather than on opening. Such a reading system rejects in the only way still open to it: it MUST NOT present the page, and once it has found one it MUST NOT present the publication as complete (§12.1).
+
 The sizes declared in the ZIP central directory are chosen by the producer and MUST NOT be trusted. A reader MUST enforce these limits during decompression as well, and MUST stop reading an entry once the size its own central directory declares is exceeded.
 
 Exceeding a limit MUST result in a controlled failure, never in unbounded allocation.
@@ -1183,6 +1185,13 @@ A conforming reading system MUST:
 
 A conforming reading system MAY omit guided region navigation (§9.4).
 
+A page resource with a layer-4 error (§15) is presented or not according to what the error leaves safe to show:
+
+- a reading system MUST NOT present a page resource that is missing, that cannot be decoded, that produces more bytes than its central directory declares, or that lies beyond the pixel limits (§13.1);
+- for any other layer-4 error it MAY present the page, and when it does it MUST make the fault known to the user. An animated page resource is presented as its first frame, and a page resource whose raster differs from its declared dimensions is scaled to them: the declared dimensions govern layout.
+
+A page that is not presented keeps its place in the spine, so that pairing (§10.4) and navigation are unchanged, and the publication MUST NOT be presented as complete (§12.1). The rule on EXIF orientation (§8.2) is the case this generalises: a residual tag is an error of the publication, and the page is still shown, as stored.
+
 ### KOMA Authoring Tool
 
 A conforming authoring tool MUST emit conforming publications, MUST apply the canonical serialization rules of §14.1, and SHOULD normalize image orientation and paths. It SHOULD produce reproducible archives and SHOULD warn when a private-use token is emitted where a core token exists.
@@ -1262,6 +1271,7 @@ This projection is lossy in both directions and is not a storage format. A tool 
 
 ### 0.9, fifth draft (this document)
 
+- §13.1, §16: what a **reading system** does with a page resource in error. The specification had only two answers: reject a publication beyond the pixel limits, and render a page with residual EXIF orientation as stored. A reading system now withholds a page it cannot show safely (missing, undecodable, over its declared size, beyond the pixel limits) and MAY show one with any other layer-4 error, provided it makes the fault known. A withheld page keeps its place in the spine, and the publication is not presented as complete, in the sense §12.1 already gives to missing essential content. §13.1 says how a reading system that checks pages as it reaches them honours the rejection it requires.
 - §13.1, §15: the **pixel limits** had no code, alone among the limits of the default profile, and the layer list of §15 filed every limit under container validation although these two can only be judged from an image header. They are now judged at layer 4, from the header and before decoding, and reported as `page-pixel-limit`, with a corpus case for each of the two limits. The reference validator had delegated them to Pillow, whose own threshold is lower than the default profile's and fails with a different error above twice its value, so a conforming page could be warned about and an oversized one misreported as unreadable. `unreadable-page-resource` pointed at §12, which is about extensions; it now points at §8.1.
 - §1, §6, §8: the core documents have **fixed paths**. §1 laid them out by name while `RootFile/@full-path`, `Manifest/@metadata` and `Manifest/@navigation` were typed `Path` and could point anywhere, so the reference validator read the names and an independent reader followed the attributes, and the two disagreed on a manifest naming a `nav.xml` the package did not contain. The attributes now MUST carry the fixed values, which the schemas enforce, and `@navigation` MUST agree with the presence of `koma/nav.xml`; `navigation-declaration-mismatch` names a disagreement either way, with a corpus case for each direction. `missing-required-xml` loses its `RootFile` clause, which described a defect that can no longer occur.
 - §15.1: the code table is extended past the container layer and gains a result column. The section named only layer-1 codes, while the reference validator already emitted twelve others — among them the whole `schema-invalid:` family and one warning — that no corpus case exercises and no section defined. A validator had nothing to write for them but a name of its own.
