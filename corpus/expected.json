@@ -116,6 +116,18 @@
       "note": "A TOC entry targets an item that is not in the spine."
     },
     {
+      "package": "L3-navigation-declared-absent.koma",
+      "outcome": "error",
+      "code": "navigation-declaration-mismatch",
+      "note": "The manifest declares nav.xml and the package does not contain it."
+    },
+    {
+      "package": "L3-navigation-present-undeclared.koma",
+      "outcome": "error",
+      "code": "navigation-declaration-mismatch",
+      "note": "The package contains nav.xml and the manifest does not declare it."
+    },
+    {
       "package": "L3-span2-with-side.koma",
       "outcome": "error",
       "code": "span2-spread-position",

@@ -118,10 +118,21 @@ def mutations():
         m("C2 private-use token of 64 characters", "manifest", "manifest.xml",
           lambda r: r.find("mf:Resources/mf:Item[2]", NS)
                      .set("roles", "x-" + "a" * 62)),
+
+        # Section 1 fixes the paths of the core documents. An attribute naming
+        # another one used to validate, and a reader following it disagreed
+        # with a validator reading the fixed name.
+        m("RootFile/@full-path elsewhere", "container", "container.xml",
+          lambda r: r.find("{urn:koma:container}RootFiles/{urn:koma:container}RootFile")
+                     .set("full-path", "koma/root.xml")),
+        m("Manifest/@metadata elsewhere", "manifest", "manifest.xml",
+          lambda r: r.set("metadata", "koma/meta.xml")),
+        m("Manifest/@navigation elsewhere", "manifest", "manifest.xml",
+          lambda r: r.set("navigation", "koma/toc.xml")),
     ]
 
 
-EXPECTED_MUTATIONS = 33
+EXPECTED_MUTATIONS = 36
 EXPECTED_INSTANCES = 4
 
 

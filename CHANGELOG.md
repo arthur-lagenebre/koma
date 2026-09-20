@@ -13,6 +13,20 @@ are the convention that stands in for it.
 
 ## Unreleased
 
+- §1, §6, §8: the core documents have fixed paths. §1 named them while the
+  attributes of §6 and §8 were typed `Path`, so `tools/check_corpus.py` read
+  the names and koma-desktop followed the attributes; the two disagreed on a
+  manifest declaring a `nav.xml` the package did not contain. The schemas now
+  pin the three attributes, `navigation-declaration-mismatch` covers
+  `@navigation` disagreeing with the package in either direction, and the
+  validator judges that at layer 3 instead of warning at layer 2.
+- `SHA256SUMS` had not been regenerated since the line-ending commit: most
+  entries no longer matched and five tracked files were missing from it,
+  unnoticed because nothing checked it. It is regenerated, and CI now fails
+  when it disagrees with the tracked files in content or in coverage.
+- Workflow actions moved off the Node 20 runtime: `checkout@v7`,
+  `setup-python@v7`, `upload-artifact@v7`.
+
 - §15.1 extended past the container layer. The section named only layer-1
   codes, while the reference validator already emitted twelve others that no
   corpus case exercises and no section defined, among them the whole

@@ -33,6 +33,8 @@ publication.koma
 
 Core files are normative. `ComicInfo.xml` is never normative for KOMA.
 
+The core documents have fixed paths: `META-INF/container.xml`, `koma/manifest.xml`, `koma/metadata.xml` and, when present, `koma/nav.xml`. A consumer locates them by these names. The attributes of §6 and §8 that name a core document MUST carry exactly these values: they state what the package contains and add no indirection. A location that could take one value only would be a second way for a producer and a consumer to disagree, and nothing else.
+
 ### 1.1 Scope and non-goals
 
 KOMA is a fixed-page raster format. The following are explicit non-goals of this version:
@@ -305,7 +307,7 @@ The container locates the root manifest.
 </Container>
 ```
 
-KOMA 0.9 requires exactly one `RootFile`. `@full-path` is a `Path`; `@media-type` MUST be the literal of §2.
+KOMA 0.9 requires exactly one `RootFile`. `@full-path` MUST be `koma/manifest.xml` (§1); `@media-type` MUST be the literal of §2.
 
 ## 7. `metadata.xml`
 
@@ -660,7 +662,7 @@ The manifest declares all raster pages and the canonical reading order.
 </Manifest>
 ```
 
-`Manifest` contains `Resources`, then `Spine`, then an optional `Extensions`, in that order. `@metadata` is REQUIRED and `@navigation` is OPTIONAL; both are `Path`. `navigation` is omitted when `nav.xml` is absent.
+`Manifest` contains `Resources`, then `Spine`, then an optional `Extensions`, in that order. `@metadata` is REQUIRED and MUST be `koma/metadata.xml`. `@navigation` is OPTIONAL and, when present, MUST be `koma/nav.xml` (§1). It MUST be present when the package contains `koma/nav.xml` and MUST be absent when it does not: the manifest declares the package, and a declaration contradicted by the package leaves a reader choosing which of the two to believe.
 
 ### 8.1 Items
 
@@ -1033,6 +1035,8 @@ Examples of errors:
 - a resource limit of the default profile exceeded (§13.1);
 - an entry whose content exceeds the uncompressed size its own central directory declares;
 - missing required XML;
+- a core-document attribute of §6 or §8 naming a path other than the one §1 fixes;
+- `Manifest/@navigation` present while `koma/nav.xml` is absent, or the reverse;
 - inconsistent `version` across core documents;
 - unknown KOMA core element or attribute, in strict mode (§5.3);
 - value violating a data type of §4.3, in any mode;
@@ -1108,7 +1112,7 @@ warning.
 | 1 | `uncompressed-size-limit` | error | Declared total uncompressed size above the default profile (§13.1). |
 | 1 | `compression-ratio-limit` | error | Entry whose declared compression ratio exceeds the default profile (§13.1). |
 | 1 | `declared-size-mismatch` | error | Entry producing more bytes than its own central directory declares (§13.1). |
-| 2 | `missing-required-xml` | error | A core document §1 requires is absent, or a `RootFile` points at one that is (§6). |
+| 2 | `missing-required-xml` | error | A core document §1 requires is absent. |
 | 2 | `xml-not-well-formed` | error | A core document is not well-formed XML, or carries a document type declaration (§13). |
 | 2 | `schema-invalid:container` | error | `META-INF/container.xml` does not satisfy its schema. |
 | 2 | `schema-invalid:metadata` | error | `koma/metadata.xml` does not satisfy its schema. |
@@ -1198,6 +1202,7 @@ The schemas constitute layer 2 of §15 and nothing more. They express element st
 - the uppercase serialization of `Color`, which is an authoring-tool requirement and a warning, never an error;
 - referential integrity — `IDREF` is validated as an NCName, not as an existing `Item/@id` in the spine;
 - constraints spanning documents, such as navigation targets or the consistency of `AccessibilityHazard` with `ContentWarning`;
+- whether `koma/nav.xml` is present, which `Manifest/@navigation` must agree with;
 - byte-level and resource facts — ZIP layout, path uniqueness after case folding, image signatures, dimensions, EXIF residue and checksums.
 
 A validator that runs the schemas alone is not a conforming KOMA validator.
@@ -1254,6 +1259,7 @@ This projection is lossy in both directions and is not a storage format. A tool 
 
 ### 0.9, fifth draft (this document)
 
+- §1, §6, §8: the core documents have **fixed paths**. §1 laid them out by name while `RootFile/@full-path`, `Manifest/@metadata` and `Manifest/@navigation` were typed `Path` and could point anywhere, so the reference validator read the names and an independent reader followed the attributes, and the two disagreed on a manifest naming a `nav.xml` the package did not contain. The attributes now MUST carry the fixed values, which the schemas enforce, and `@navigation` MUST agree with the presence of `koma/nav.xml`; `navigation-declaration-mismatch` names a disagreement either way, with a corpus case for each direction. `missing-required-xml` loses its `RootFile` clause, which described a defect that can no longer occur.
 - §15.1: the code table is extended past the container layer and gains a result column. The section named only layer-1 codes, while the reference validator already emitted twelve others — among them the whole `schema-invalid:` family and one warning — that no corpus case exercises and no section defined. A validator had nothing to write for them but a name of its own.
 - §10.4: the **pseudocode** now expresses the spine-order invariant. The fourth draft added the invariant as a paragraph and changed the reference implementation, but left the normative pseudocode back-filling exactly as before, so the section prescribed two different behaviours for the same case. Found by external review; the paragraph, the pseudocode, the implementation and the fixtures now agree.
 - §5.0: the publication trigger that governs when a `0.x` number must move is stated here, normatively, instead of only in `CONTRIBUTING.md` and in this informative annex, which referred to "§5.0" for a rule §5.0 did not contain. The conformance corpus is excepted from it.

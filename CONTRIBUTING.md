@@ -33,6 +33,7 @@ Once the major version reaches 1, §5.2 applies: an addition in a minor version 
 3. Regenerate with `python tools/build_corpus.py`. It writes to the repository corpus whatever the working directory, and `--out` sends it elsewhere.
 4. Run `python tests/test_corpus.py`. Both the committed and rebuilt packages must behave as declared.
 5. Run `python tests/test_docs.py`. The package count is quoted in README.md and this is what keeps it true.
+6. Regenerate `SHA256SUMS` (see below).
 
 If the check does not exist yet in `tools/check_corpus.py`, add it there too, or the case will pass for the wrong reason.
 
@@ -41,6 +42,16 @@ If the check does not exist yet in `tools/check_corpus.py`, add it there too, or
 README.md quotes how many mutations, pairing cases, corpus packages and CBZ fixtures the suites carry, and `tests/test_docs.py` recomputes all four and demands the exact sentence. Change a suite and that test fails until the prose follows.
 
 Do not put a counter in CHANGELOG.md, unless it is inside double quotes: a quoted figure is a citation of past output and cannot go stale, so the test exempts it. An entry there is a historical record, and no test that only knows the present can keep it true; three of them drifted before this rule existed. The same test rejects a live counter reappearing in that file.
+
+## Checksums
+
+`SHA256SUMS` lists every tracked file but itself, and CI fails when it is stale. Regenerate it before committing:
+
+```sh
+git ls-files ':!SHA256SUMS' | xargs sha256sum > SHA256SUMS
+```
+
+It hashes the LF content `.gitattributes` enforces, and it is how a copy of this repository received as an archive is checked against the one CI saw. It went stale once, for most of the repository's history, because nothing read it.
 
 ## What the tests are for
 

@@ -325,6 +325,14 @@ case("L3-nav-target-outside-spine", "error", "navigation-target-outside-spine",
      mutate=chain(sub(M, '<ItemRef item="p003"/>\n    ', ""),
                   sub(N, 'Entry item="p002"', 'Entry item="p003"')))
 
+case("L3-navigation-declared-absent", "error", "navigation-declaration-mismatch",
+     "The manifest declares nav.xml and the package does not contain it.",
+     mutate=lambda f, p: f.pop(N))
+
+case("L3-navigation-present-undeclared", "error", "navigation-declaration-mismatch",
+     "The package contains nav.xml and the manifest does not declare it.",
+     mutate=sub(M, ' navigation="koma/nav.xml"', ""))
+
 case("L3-span2-with-side", "error", "span2-spread-position",
      "A two-page image cannot be pinned to a physical side.",
      mutate=sub(M, '<ItemRef item="p004"/>',

@@ -16,8 +16,8 @@ start = Manifest
 Manifest =
   element Manifest {
     attribute version { "0.9" },
-    attribute metadata { Path },
-    attribute navigation { Path }?,
+    attribute metadata { "koma/metadata.xml" },
+    attribute navigation { "koma/nav.xml" }?,
     element Resources { Item+ },
     element Spine { ItemRef+ },
     Extensions?

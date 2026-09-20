@@ -142,10 +142,10 @@ def check(path, rng):
                          ("koma/manifest.xml", "manifest"),
                          ("koma/nav.xml", "navigation")):
         if member not in names:
+            # nav.xml is optional, and whether its absence is legal depends on
+            # what the manifest declares: that is judged at layer 3.
             if kind != "navigation":
                 err("missing-required-xml")
-            else:
-                warn("no-navigation-document")
             continue
         try:
             doc = etree.fromstring(z.read(member))
@@ -167,6 +167,14 @@ def check(path, rng):
     for it in mf.iterfind(".//f:Resources/f:Item", NS):
         items[it.get("id")] = it
     spine = [r.get("item") for r in mf.iterfind(".//f:Spine/f:ItemRef", NS)]
+
+    # Section 8: the manifest declares nav.xml exactly when the package holds
+    # it. The paths are fixed by section 1, so the declaration can only be
+    # present or absent, and it must agree with the package either way.
+    if (mf.get("navigation") is not None) != ("koma/nav.xml" in names):
+        err("navigation-declaration-mismatch")
+    elif "koma/nav.xml" not in names:
+        warn("no-navigation-document")
 
     for ref in spine:
         if ref not in items:
