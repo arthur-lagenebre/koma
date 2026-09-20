@@ -1,0 +1,14 @@
+# Never commit third-party works. See CONTRIBUTING.md.
+*.cbr
+*.cbz
+!examples/*.cbz
+*.koma
+!corpus/packages/*.koma
+!examples/sample.koma
+
+# Generated
+dist/
+*.rng
+__pycache__/
+*.pyc
+.venv/
