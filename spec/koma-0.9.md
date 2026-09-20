@@ -131,7 +131,7 @@ Core attribute and element values use the following lexical types. A value that 
 | `Normalized` | Plain text; leading and trailing whitespace are insignificant and MUST be stripped by consumers; internal whitespace sequences are collapsed for comparison but preserved for display. |
 | `Decimal01` | Decimal in the closed interval 0–1, with a required leading `0` or `1`, at most 6 fraction digits, `.` as separator. `.5` is invalid, `0.5` is not. |
 
-Two constraints of this table cannot be carried by a schema and are checked at layer 3 of §15: a `TokenList` MUST NOT repeat a token, and a `Normalized` value that is required to be non-empty MUST contain at least one non-whitespace character. The uppercase serialization of `Color` is a canonical-serialization requirement on authoring tools only (§14.1); a reader MUST accept either case, and a validator reports lowercase as a warning, never as an error.
+Two constraints of this table cannot be carried by a schema and are checked at layer 3 of §15: a `TokenList` MUST NOT repeat a token, and a `Normalized` value that is required to be non-empty MUST contain at least one non-whitespace character. The uppercase serialization of `Color` is a canonical-serialization requirement on authoring tools only (§14.1); a reader MUST accept either case, and a validator reports lowercase as a warning, `color-lowercase`, never as an error.
 
 Core element content is plain text unless stated otherwise. CDATA sections, comments and processing instructions carry no meaning and MUST NOT alter interpretation.
 
@@ -163,7 +163,7 @@ Rules for open vocabularies:
 - A reader or validator MUST NOT reject a document because a private-use token is present. It MUST apply the fallback defined in §4.5.1.
 - A private-use token MUST NOT be used to satisfy a requirement expressed in terms of a core token. For example, `x-cover` does not satisfy the requirement for exactly one `front-cover` page, and `x-primary` does not satisfy the requirement for exactly one `Title type="main"`.
 - A private-use token has no globally defined meaning. Producers MAY document their private-use tokens inside `Metadata/Extensions` using a foreign namespace; such documentation is informational.
-- A token that is neither a core token of the vocabulary nor a syntactically valid private-use token is handled per §5.3.
+- A token that is neither a core token of the vocabulary nor a syntactically valid private-use token is handled per §5.3. Where §5.3 makes it an error, it is `unknown-token`; a reading system still applies §4.5.1 to it (§16).
 
 #### 4.5.1 Fallback table
 
@@ -1192,6 +1192,8 @@ A page resource with a layer-4 error (§15) is presented or not according to wha
 
 A page that is not presented keeps its place in the spine, so that pairing (§10.4) and navigation are unchanged, and the publication MUST NOT be presented as complete (§12.1). The rule on EXIF orientation (§8.2) is the case this generalises: a residual tag is an error of the publication, and the page is still shown, as stored.
 
+An unknown token in an open vocabulary (§4.5) is an error of the publication, and it does not prevent reading: §4.5.1 gives every such token a fallback or a way to be ignored, so a reading system MAY present the publication after applying it. When it does, it MUST make the fault known to the user, as for a page resource in error. A closed-vocabulary violation is not of this kind: no fallback exists, and the error stands.
+
 ### KOMA Authoring Tool
 
 A conforming authoring tool MUST emit conforming publications, MUST apply the canonical serialization rules of §14.1, and SHOULD normalize image orientation and paths. It SHOULD produce reproducible archives and SHOULD warn when a private-use token is emitted where a core token exists.
@@ -1271,6 +1273,7 @@ This projection is lossy in both directions and is not a storage format. A tool 
 
 ### 0.9, fifth draft (this document)
 
+- §4.3, §4.5, §16: **unknown tokens and lowercase colours** get codes, `unknown-token` and `color-lowercase`; the first is an error in strict mode, the second a warning, and §15.1 had named neither. A reading system MAY present a publication with an unknown token after applying §4.5.1, provided it makes the fault known, as it may a page resource in error: the fallback table exists so that nothing is guessed. The reference validator now checks every open vocabulary of the specification, not only page roles, and the corpus gains a case for each code.
 - §9.2: the two **page-list rules** get codes, `pagetarget-duplicate` and `span1-pagetarget-position`. §15 listed both as errors and §15.1 named neither, so a validator could not report them without breaking the rule that forbids spelling a defect as another's code. Two targets both without `spread-position` are now stated to be duplicates, which the rule left implicit. The corpus gains a case for each, and a valid publication with a page list, which it had none of.
 - §13.1, §16: what a **reading system** does with a page resource in error. The specification had only two answers: reject a publication beyond the pixel limits, and render a page with residual EXIF orientation as stored. A reading system now withholds a page it cannot show safely (missing, undecodable, over its declared size, beyond the pixel limits) and MAY show one with any other layer-4 error, provided it makes the fault known. A withheld page keeps its place in the spine, and the publication is not presented as complete, in the sense §12.1 already gives to missing essential content. §13.1 says how a reading system that checks pages as it reaches them honours the rejection it requires.
 - §13.1, §15: the **pixel limits** had no code, alone among the limits of the default profile, and the layer list of §15 filed every limit under container validation although these two can only be judged from an image header. They are now judged at layer 4, from the header and before decoding, and reported as `page-pixel-limit`, with a corpus case for each of the two limits. The reference validator had delegated them to Pillow, whose own threshold is lower than the default profile's and fails with a different error above twice its value, so a conforming page could be warned about and an oversized one misreported as unreadable. `unreadable-page-resource` pointed at §12, which is about extensions; it now points at §8.1.

@@ -13,6 +13,12 @@ are the convention that stands in for it.
 
 ## Unreleased
 
+- §4.3, §4.5, §16: `unknown-token` for a token outside the core set of an open
+  vocabulary that is not a valid private-use token, an error in strict mode,
+  and `color-lowercase`, a warning. A reading system may present a publication
+  with an unknown token after applying the fallbacks of §4.5.1, if it says so.
+  `tools/check_corpus.py` checks all 25 open vocabularies, where it checked
+  page roles only, and the corpus gains a case for each code.
 - §9.2: the two page-list rules get codes, `pagetarget-duplicate` and
   `span1-pagetarget-position`, and `tools/check_corpus.py` checks them. Two
   targets both without `spread-position` count as duplicates. The corpus gains

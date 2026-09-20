@@ -10,6 +10,7 @@ import hashlib
 import io
 import json
 import os
+import re
 import sys
 import unicodedata
 import zipfile
@@ -36,6 +37,86 @@ TOTAL_UNCOMPRESSED = 4 * 1024 ** 3
 ARCHIVE_MULTIPLE = 100
 MAX_RATIO = 100
 RATIO_FLOOR = 1024 * 1024
+
+# Section 4.5: every open vocabulary, as (document, element, attribute or
+# None for element content, whether the value is a TokenList, core tokens).
+# A token outside the core set that is not a valid private-use token is an
+# error in strict mode, which is how an identical 0.x is read (section 5.3).
+OPEN_VOCABULARIES = [
+    ("m", "Identifier", "scheme", False,
+     {"uuid", "isbn-10", "isbn-13", "ean-13", "issn", "doi", "uri", "proprietary"}),
+    ("m", "Title", "type", False,
+     {"main", "subtitle", "original", "alternative", "short", "sort"}),
+    ("m", "Language", "role", False,
+     {"content", "original", "translation", "secondary"}),
+    ("m", "Collection", "type", False,
+     {"series", "subseries", "cycle", "story-arc", "publisher-collection",
+      "franchise", "universe", "anthology", "other"}),
+    ("m", "Collection", "relation", False, {"main", "special", "other"}),
+    ("m", "Name", "type", False,
+     {"name", "given", "family", "middle", "prefix", "suffix", "pseudonym",
+      "mononym", "alternative"}),
+    ("m", "Contributor", "roles", True,
+     {"writer", "script-writer", "adapter", "artist", "penciller", "inker",
+      "colorist", "letterer", "cover-artist", "translator", "editor",
+      "designer", "photographer", "consultant", "other"}),
+    ("m", "Description", "type", False,
+     {"summary", "synopsis", "blurb", "note", "edition-note", "series-note",
+      "other"}),
+    ("m", "Date", "event", False,
+     {"publication", "first-publication", "creation", "digitization",
+      "modified"}),
+    ("m", "Subject", "type", False,
+     {"genre", "theme", "keyword", "setting", "time-period", "audience",
+      "other"}),
+    ("m", "Entity", "type", False,
+     {"character", "team", "organization", "location", "vehicle", "object",
+      "event", "other"}),
+    ("m", "Entity", "role", False,
+     {"protagonist", "antagonist", "supporting", "cameo", "narrator"}),
+    ("m", "Content", "original-medium", False,
+     {"print", "digital", "webtoon", "mixed", "unknown"}),
+    ("m", "Source", "type", False,
+     {"print", "digital", "microform", "original-artwork", "periodical",
+      "other"}),
+    ("m", "Method", None, False,
+     {"flatbed-scan", "sheet-fed-scan", "overhead-scan", "photography",
+      "born-digital", "other"}),
+    ("m", "Processing", None, True,
+     {"deskew", "despeckle", "crop", "level-adjust", "colour-correction",
+      "denoise", "upscale", "recompression", "other"}),
+    ("m", "AccessMode", None, False,
+     {"visual", "textual", "auditory", "tactile"}),
+    ("m", "AccessModeSufficient", None, True,
+     {"visual", "textual", "auditory", "tactile"}),
+    ("m", "AccessibilityFeature", None, False,
+     {"alternative-text", "long-description", "reading-order",
+      "structural-navigation", "page-navigation", "table-of-contents",
+      "high-contrast-display", "none"}),
+    ("m", "AccessibilityHazard", None, False,
+     {"flashing", "no-flashing-hazard", "motion-simulation",
+      "no-motion-simulation-hazard", "sound", "no-sound-hazard", "none",
+      "unknown"}),
+    ("m", "ContentWarning", "type", False,
+     {"violence", "gore", "sexual-content", "nudity", "language", "drug-use",
+      "self-harm", "flashing-images", "other"}),
+    ("m", "Link", "rel", False,
+     {"homepage", "publisher", "author", "series", "purchase", "record",
+      "errata", "license", "source", "related-publication", "other"}),
+    ("f", "Item", "roles", True,
+     {"front-cover", "inner-cover", "title-page", "table-of-contents", "recap",
+      "story", "interlude", "illustration", "advertisement", "editorial",
+      "letters", "preview", "credits", "bonus", "blank", "back-cover",
+      "other"}),
+    ("n", "Landmark", "type", False,
+     {"front-cover", "inner-cover", "title-page", "table-of-contents",
+      "body-start", "story-start", "credits", "glossary", "appendix", "bonus",
+      "preview", "back-cover"}),
+    ("n", "Region", "type", False,
+     {"panel", "group", "inset", "caption", "other"}),
+]
+
+PRIVATE_USE = re.compile(r"x-[a-z0-9]([a-z0-9-]{0,59}[a-z0-9])?")
 
 SIGNATURES = {"image/jpeg": (b"\xff\xd8\xff",),
               "image/png": (b"\x89PNG\r\n\x1a\n",),
@@ -207,10 +288,32 @@ def check(path, rng):
         if i not in spine:
             warn("resource-outside-spine")
 
+    # Section 4.5: every open vocabulary, in whichever document holds it.
+    # A private-use token is legal and noted; any other unknown one is an
+    # error, which a reading system may still read past (section 16).
+    roots = {"m": md, "f": mf, "n": nav}
+    for prefix, element, attribute, is_list, core in OPEN_VOCABULARIES:
+        root = roots[prefix]
+        if root is None:
+            continue
+        for el in root.iterfind(f".//{prefix}:{element}", NS):
+            value = el.get(attribute) if attribute else el.text
+            if value is None:
+                continue
+            for token in (value.split(";") if is_list else [value.strip()]):
+                if token in core:
+                    continue
+                if PRIVATE_USE.fullmatch(token):
+                    warn("private-use-token")
+                else:
+                    err("unknown-token")
+
+    # Section 4.3: a reader accepts either case, and a validator warns about
+    # lowercase, since authoring tools must serialise uppercase.
     for it in items.values():
-        for token in (it.get("roles") or "").split(";"):
-            if token.startswith("x-"):
-                warn("private-use-token")
+        colour = it.get("background-color")
+        if colour is not None and colour != colour.upper():
+            warn("color-lowercase")
 
     declared = {it.get("href") for it in items.values()}
     for n in names:

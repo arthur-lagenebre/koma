@@ -273,6 +273,11 @@ case("valid-private-use-tokens", "warning", "private-use-token",
      "x- tokens in an open vocabulary. Accepted, flagged.",
      mutate=sub(M, 'roles="story"', 'roles="story;x-splash"'))
 
+case("valid-lowercase-color", "warning", "color-lowercase",
+     "A background colour in lowercase: read either way, serialised uppercase.",
+     mutate=sub(M, 'roles="story"/>\n    <Item id="p003"',
+                'roles="story" background-color="#f0f0f0"/>\n    <Item id="p003"'))
+
 case("valid-page-list", "valid", None,
      "A page list, with the two-page spread labelled half by half.",
      mutate=with_page_list())
@@ -378,6 +383,11 @@ case("L3-span1-pagetarget-position", "error", "span1-pagetarget-position",
      "A half is labelled on a single page.",
      mutate=with_page_list(PAGE_LIST.replace(
          'item="p002" label="1"/>', 'item="p002" label="1" spread-position="left"/>')))
+
+case("L3-unknown-token", "error", "unknown-token",
+     "A page role that is neither a core token nor a private-use one.",
+     mutate=sub(M, 'roles="story"/>\n    <Item id="p004"',
+                'roles="prologue"/>\n    <Item id="p004"'))
 
 case("L3-hazard-contradiction", "error", "accessibility-hazard-conflict",
      "no-flashing-hazard declared alongside a flashing-images warning.",
