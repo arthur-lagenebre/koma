@@ -13,6 +13,12 @@ are the convention that stands in for it.
 
 ## Unreleased
 
+- §2.1: `mimetype-data-descriptor` and `mimetype-extra-field`, with a corpus
+  case each, for two faults reported until now as `mimetype-content`.
+- §3: normalization and case folding use Unicode 16.0.0. The reference
+  validator warns when the Python running it carries older data, and CI runs
+  it on Python 3.14, whose data is 16.0.0.
+- CI lints the workflows with actionlint.
 - §14.1: text on several lines is canonical. An element's text begins and
   ends on the line of its start tag, and its own line breaks are written as
   they are, where the rule said one line and a summary in paragraphs could

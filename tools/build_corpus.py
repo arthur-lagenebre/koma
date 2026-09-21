@@ -214,7 +214,7 @@ def base_files():
 
 def write_package(path, xml_files, pages, mimetype=MIMETYPE,
                   mimetype_first=True, mimetype_stored=True, extra_entries=(),
-                  postprocess=None):
+                  postprocess=None, mimetype_extra=b""):
     entries = []
     if mimetype_first:
         entries.append(("mimetype", mimetype.encode(), mimetype_stored))
@@ -233,10 +233,52 @@ def write_package(path, xml_files, pages, mimetype=MIMETYPE,
             zi.compress_type = (zipfile.ZIP_STORED if stored
                                 else zipfile.ZIP_DEFLATED)
             zi.external_attr = 0o644 << 16
+            if name == "mimetype":
+                zi.extra = mimetype_extra
             z.writestr(zi, data)
 
     if postprocess:
         postprocess(path)
+
+
+def with_data_descriptor(path):
+    """Move the CRC and sizes of the mimetype entry into a data descriptor.
+
+    zipfile writes a descriptor only to a stream it cannot seek, and then for
+    every entry, so the bytes are patched afterwards: general purpose bit 3 is
+    set in both headers, the local CRC and sizes are zeroed, and the 16-byte
+    descriptor goes after the data, which moves every later entry and the
+    central directory by that much.
+    """
+    with open(path, "rb") as fh:
+        b = bytearray(fh.read())
+
+    assert b[30:38] == b"mimetype", "the mimetype entry must be first"
+    crc, compressed, size = b[14:18], b[18:22], b[22:26]
+    data_end = 30 + 8 + int.from_bytes(compressed, "little")
+
+    b[6] |= 0x08
+    b[14:26] = bytes(12)
+    b[data_end:data_end] = b"PK\x07\x08" + crc + compressed + size
+
+    eocd = b.rfind(b"PK\x05\x06")
+    directory = int.from_bytes(b[eocd + 16:eocd + 20], "little")
+    b[eocd + 16:eocd + 20] = (directory + 16).to_bytes(4, "little")
+
+    at = b.find(b"PK\x01\x02", directory + 16)
+    while at != -1 and at < eocd:
+        local = int.from_bytes(b[at + 42:at + 46], "little")
+        name_length = int.from_bytes(b[at + 28:at + 30], "little")
+        if b[at + 46:at + 46 + name_length] == b"mimetype":
+            b[at + 8] |= 0x08
+        elif local > 0:
+            b[at + 42:at + 46] = (local + 16).to_bytes(4, "little")
+        extra = int.from_bytes(b[at + 30:at + 32], "little")
+        comment = int.from_bytes(b[at + 32:at + 34], "little")
+        at = b.find(b"PK\x01\x02", at + 46 + name_length + extra + comment)
+
+    with open(path, "wb") as fh:
+        fh.write(bytes(b))
 
 
 def lie_about_size(entry, declared):
@@ -381,6 +423,14 @@ case("L1-mimetype-not-first", "error", "mimetype-position",
 case("L1-mimetype-deflated", "error", "mimetype-compression",
      "mimetype stored with Deflate instead of Store.",
      mimetype_stored=False)
+
+case("L1-mimetype-data-descriptor", "error", "mimetype-data-descriptor",
+     "mimetype defers its CRC and sizes to a data descriptor.",
+     postprocess=with_data_descriptor)
+
+case("L1-mimetype-extra-field", "error", "mimetype-extra-field",
+     "mimetype carries an extra field, which moves its content off byte 38.",
+     mimetype_extra=b"\xfe\xca\x04\x00KOMA")
 
 case("L1-path-traversal", "error", "path-traversal",
      "An entry escapes the package root.",

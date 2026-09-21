@@ -68,6 +68,18 @@
       "note": "mimetype stored with Deflate instead of Store."
     },
     {
+      "package": "L1-mimetype-data-descriptor.koma",
+      "outcome": "error",
+      "code": "mimetype-data-descriptor",
+      "note": "mimetype defers its CRC and sizes to a data descriptor."
+    },
+    {
+      "package": "L1-mimetype-extra-field.koma",
+      "outcome": "error",
+      "code": "mimetype-extra-field",
+      "note": "mimetype carries an extra field, which moves its content off byte 38."
+    },
+    {
       "package": "L1-path-traversal.koma",
       "outcome": "error",
       "code": "path-traversal",

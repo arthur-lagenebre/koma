@@ -22,7 +22,7 @@ import canonical                          # noqa: E402
 from test_converter import convert        # noqa: E402
 
 FIXTURES = ["manga.cbz", "bare.cbz", "messy.cbz"]
-EXPECTED_PACKAGES = 43
+EXPECTED_PACKAGES = 45
 
 CASES = [
     ("an element with no content is self-closing",

@@ -11,9 +11,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # 3.14 carries the Unicode 16.0.0 data section 3 names; an older Python
+      # folds names with older data and makes the validator warn.
       - uses: actions/setup-python@v7
         with:
-          python-version: "3.12"
+          python-version: "3.14"
 
       - name: Install dependencies
         run: pip install -r requirements.txt
@@ -79,3 +81,16 @@ jobs:
         with:
           name: koma-schemas-rng
           path: dist/schemas
+
+  # A workflow that does not parse fails before it starts, and says so only
+  # in the Actions tab. actionlint reads the workflows the way GitHub will,
+  # contexts included, and fails the push instead.
+  workflows:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Lint the workflows
+        run: |
+          bash <(curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.9/scripts/download-actionlint.bash) 1.7.9
+          ./actionlint -color

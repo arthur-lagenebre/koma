@@ -69,7 +69,7 @@ application/vnd.koma+zip
 
 It is exactly 24 ASCII bytes, with no BOM, whitespace or newline.
 
-The entry MUST be the first physical ZIP entry, MUST use Store (method 0), MUST NOT be encrypted and MUST NOT contain ZIP extra fields. Its local file header MUST begin at byte offset 0 of the file; prepended data such as a self-extracting stub is forbidden. The entry MUST NOT use a data descriptor: the CRC-32 and both size fields MUST be present and correct in the local file header.
+The entry MUST be the first physical ZIP entry, MUST use Store (method 0), MUST NOT be encrypted and MUST NOT contain ZIP extra fields (`mimetype-extra-field`). Its local file header MUST begin at byte offset 0 of the file; prepended data such as a self-extracting stub is forbidden. The entry MUST NOT use a data descriptor (`mimetype-data-descriptor`): the CRC-32 and both size fields MUST be present and correct in the local file header.
 
 These constraints fix the byte layout of the start of the file: the local file header occupies offsets 0–29, the entry name `mimetype` occupies offsets 30–37, and the media type occupies offsets 38–61. A consumer MAY identify a KOMA file by comparing those 24 bytes, without opening the archive.
 
@@ -85,6 +85,8 @@ Allowed ZIP compression methods:
 ZIP64 MUST be supported when required. Multipart archives and ZIP encryption are forbidden. Symlinks and other link-like entries are forbidden.
 
 File names MUST use UTF-8, `/` separators and Unicode NFC. Paths are package-root-relative. Absolute paths, `.` segments, `..` segments, backslashes and traversal constructs are forbidden. Logical names MUST be unique after Unicode normalization and case folding. Case folding here means Unicode **full** case folding, as in default caseless matching: `straße.webp` and `STRASSE.webp` are the same logical name. Simple folding keeps them apart, so the two produce different verdicts on the same package and the choice cannot be left to the implementation.
+
+Normalization and case folding use the data of Unicode 16.0.0. Unicode's stability policies keep both fixed for a character once it is assigned, so an implementation built on a later version reaches the same verdict on every name made of characters Unicode 16.0.0 assigns. A name using a character assigned later may be judged differently by an implementation built on 16.0.0, and a producer SHOULD NOT write one.
 
 ZIP timestamps, comments and non-semantic extra fields are not KOMA metadata and MUST NOT affect publication identity (§7.2.1). Deterministic packaging is specified in §14.2.
 
@@ -1279,6 +1281,7 @@ This projection is lossy in both directions and is not a storage format. A tool 
 
 ### 0.9, fifth draft (this document)
 
+- §2.1: a **data descriptor** and **extra fields** on the `mimetype` entry get codes of their own, `mimetype-data-descriptor` and `mimetype-extra-field`, where implementations reported them as `mimetype-content` for want of one; the corpus gains a case for each. §3: normalization and case folding name their **Unicode version**, 16.0.0. The rule relied on data that changes between versions without saying which, so two conforming implementations could disagree on whether two names were one; Unicode's stability policies confine any remaining difference to characters assigned after 16.0.0, which a producer should not use in a name.
 - §14.1: an element with **text on several lines** is canonical. The layout rules said such an element was written on one line, which a summary in paragraphs cannot be without losing what §4.3 preserves for display; both serializers had kept the line breaks, which the rule did not allow to the letter. The text now begins and ends on the line of its start tag, its own line breaks written as they are. `valid-multiline-description` is the corpus case, a two-paragraph summary, found on the first real album converted.
 - §14.1: the **canonical serialization** says how a document is laid out. It fixed the encoding, the declaration, the line endings and the order of attributes, then promised that two tools would produce byte-identical documents, while saying nothing about indentation or where lines break — a promise nothing could keep. One element per line, two spaces per level, attributes on the line of their start tag, text on the line of its element, and a final LF. The corpus, whose documents wrapped their attributes by hand, is rewritten in this form, and `tools/canonical.py` is the reference serializer that `tests/test_canonical.py` holds it to.
 - §8.3: the PNG `sRGB`, `gAMA` and `cHRM` chunks were said to be "honoured", with no keyword and no order; a reading system now SHOULD honour them, as it SHOULD apply a profile, in the precedence of the PNG specification. A profile that does not parse is named as a case of the fallback to sRGB. The corpus gains two valid packages a reading system can check its colour management against, the first to carry any colour information: `valid-icc-profiles`, a JPEG, a PNG and a WebP page each with an embedded wide-gamut profile, and `valid-png-gamma`, a PNG page with a linear `gAMA` and no profile.

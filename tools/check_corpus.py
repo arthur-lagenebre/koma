@@ -13,6 +13,13 @@ import os
 import re
 import sys
 import unicodedata
+
+# Section 3 fixes Unicode 16.0.0 for normalization and case folding. Older
+# data can call two names distinct that the specification calls one, so the
+# verdicts of this validator are only the reference ones on 16.0.0 or later.
+if tuple(int(p) for p in unicodedata.unidata_version.split(".")) < (16, 0, 0):
+    print(f"warning: this Python carries Unicode {unicodedata.unidata_version}; "
+          "section 3 uses 16.0.0 (Python 3.14 or later)", file=sys.stderr)
 import zipfile
 import zlib
 
@@ -179,6 +186,14 @@ def check(path, rng):
         stored = z.getinfo("mimetype").compress_type == zipfile.ZIP_STORED
         if not stored:
             err("mimetype-compression")
+        # Section 2.1 fixes the bytes of the start of the file, and each fault
+        # in them has its own code: a data descriptor (general purpose bit 3)
+        # and extra fields are named before the content is compared, since
+        # either one moves or hollows out the bytes the content check reads.
+        elif int.from_bytes(raw[6:8], "little") & 0x08:
+            err("mimetype-data-descriptor")
+        elif int.from_bytes(raw[28:30], "little"):
+            err("mimetype-extra-field")
         elif raw[30:38] != b"mimetype" or raw[38:38 + len(MIMETYPE)] != MIMETYPE:
             # The byte layout is only meaningful for a stored entry.
             err("mimetype-content")
