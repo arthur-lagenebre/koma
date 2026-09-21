@@ -67,21 +67,6 @@ jobs:
             exit 1
           fi
 
-      - name: Publish generated RELAX NG
-        run: |
-          mkdir -p dist/schemas
-          python -c "
-          import sys; sys.path.insert(0, 'tests')
-          from test_schemas import compile_schemas
-          compile_schemas('dist/schemas')
-          print('wrote dist/schemas')
-          "
-
-      - uses: actions/upload-artifact@v7
-        with:
-          name: koma-schemas-rng
-          path: dist/schemas
-
   # A workflow that does not parse fails before it starts, and says so only
   # in the Actions tab. actionlint reads the workflows the way GitHub will,
   # contexts included, and fails the push instead.

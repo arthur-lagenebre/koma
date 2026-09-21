@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+         ns="urn:koma:navigation"
+         xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
+         xmlns:gc="urn:koma:container"
+         xmlns:gf="urn:koma:manifest"
+         xmlns:gm="urn:koma:metadata"
+         xmlns:gn="urn:koma:navigation"
+         xmlns:xml="http://www.w3.org/XML/1998/namespace"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <ref name="Navigation"/>
+  </start>
+  <define name="Navigation">
+    <element>
+      <name ns="urn:koma:navigation">Navigation</name>
+      <attribute>
+        <name ns="">version</name>
+        <value>0.9</value>
+      </attribute>
+      <optional>
+        <ref name="Lang"/>
+      </optional>
+      <ref name="NavigationSections"/>
+      <optional>
+        <ref name="Extensions"/>
+      </optional>
+    </element>
+  </define>
+  <define name="NavigationSections">
+    <choice>
+      <group>
+        <ref name="TableOfContents"/>
+        <optional>
+          <ref name="PageList"/>
+        </optional>
+        <optional>
+          <ref name="Landmarks"/>
+        </optional>
+        <optional>
+          <ref name="Regions"/>
+        </optional>
+      </group>
+      <group>
+        <ref name="PageList"/>
+        <optional>
+          <ref name="Landmarks"/>
+        </optional>
+        <optional>
+          <ref name="Regions"/>
+        </optional>
+      </group>
+      <group>
+        <ref name="Landmarks"/>
+        <optional>
+          <ref name="Regions"/>
+        </optional>
+      </group>
+      <ref name="Regions"/>
+    </choice>
+  </define>
+  <define name="TableOfContents">
+    <a:documentation>9.1 Table of contents</a:documentation>
+    <element>
+      <name ns="urn:koma:navigation">TableOfContents</name>
+      <oneOrMore>
+        <ref name="Entry"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="Entry">
+    <element>
+      <name ns="urn:koma:navigation">Entry</name>
+      <attribute>
+        <name ns="">item</name>
+        <data type="NCName"/>
+      </attribute>
+      <oneOrMore>
+        <ref name="Label"/>
+      </oneOrMore>
+      <zeroOrMore>
+        <ref name="Entry"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="Label">
+    <element>
+      <name ns="urn:koma:navigation">Label</name>
+      <optional>
+        <ref name="Lang"/>
+      </optional>
+      <ref name="NonEmpty"/>
+    </element>
+  </define>
+  <define name="PageList">
+    <a:documentation>9.2 Page list</a:documentation>
+    <element>
+      <name ns="urn:koma:navigation">PageList</name>
+      <oneOrMore>
+        <ref name="PageTarget"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="PageTarget">
+    <element>
+      <name ns="urn:koma:navigation">PageTarget</name>
+      <attribute>
+        <name ns="">item</name>
+        <data type="NCName"/>
+      </attribute>
+      <attribute>
+        <name ns="">label</name>
+        <ref name="NonEmpty"/>
+      </attribute>
+      <optional>
+        <attribute>
+          <name ns="">spread-position</name>
+          <choice>
+            <value>left</value>
+            <value>right</value>
+          </choice>
+        </attribute>
+      </optional>
+    </element>
+  </define>
+  <define name="Landmarks">
+    <a:documentation>9.3 Landmarks</a:documentation>
+    <element>
+      <name ns="urn:koma:navigation">Landmarks</name>
+      <oneOrMore>
+        <ref name="Landmark"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="Landmark">
+    <element>
+      <name ns="urn:koma:navigation">Landmark</name>
+      <attribute>
+        <name ns="">type</name>
+        <ref name="Token"/>
+      </attribute>
+      <attribute>
+        <name ns="">item</name>
+        <data type="NCName"/>
+      </attribute>
+      <zeroOrMore>
+        <ref name="Label"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="Regions">
+    <a:documentation>9.4 Regions</a:documentation>
+    <element>
+      <name ns="urn:koma:navigation">Regions</name>
+      <oneOrMore>
+        <ref name="RegionSequence"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="RegionSequence">
+    <element>
+      <name ns="urn:koma:navigation">RegionSequence</name>
+      <attribute>
+        <name ns="">item</name>
+        <data type="NCName"/>
+      </attribute>
+      <oneOrMore>
+        <ref name="Region"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="Region">
+    <element>
+      <name ns="urn:koma:navigation">Region</name>
+      <optional>
+        <attribute>
+          <name ns="">type</name>
+          <ref name="Token"/>
+        </attribute>
+      </optional>
+      <attribute>
+        <name ns="">x</name>
+        <ref name="Decimal01"/>
+      </attribute>
+      <attribute>
+        <name ns="">y</name>
+        <ref name="Decimal01"/>
+      </attribute>
+      <attribute>
+        <name ns="">width</name>
+        <ref name="Decimal01"/>
+      </attribute>
+      <attribute>
+        <name ns="">height</name>
+        <ref name="Decimal01"/>
+      </attribute>
+      <zeroOrMore>
+        <ref name="Label"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="Extensions">
+    <a:documentation>12. Extensions</a:documentation>
+    <element>
+      <name ns="urn:koma:navigation">Extensions</name>
+      <oneOrMore>
+        <ref name="ExtensionChild"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="ExtensionChild">
+    <element>
+      <anyName>
+        <except>
+          <choice>
+            <nsName ns="urn:koma:container"/>
+            <nsName ns="urn:koma:metadata"/>
+            <nsName ns="urn:koma:manifest"/>
+            <nsName ns="urn:koma:navigation"/>
+          </choice>
+        </except>
+      </anyName>
+      <optional>
+        <attribute>
+          <name ns="urn:koma:metadata">essential</name>
+          <ref name="Boolean"/>
+        </attribute>
+      </optional>
+      <ref name="AnyContent"/>
+    </element>
+  </define>
+  <define name="AnyContent">
+    <zeroOrMore>
+      <choice>
+        <attribute>
+          <anyName>
+            <except>
+              <name ns="urn:koma:metadata">essential</name>
+            </except>
+          </anyName>
+          <text/>
+        </attribute>
+        <ref name="ForeignElement"/>
+        <text/>
+      </choice>
+    </zeroOrMore>
+  </define>
+  <define name="ForeignElement">
+    <element>
+      <anyName>
+        <except>
+          <choice>
+            <nsName ns="urn:koma:container"/>
+            <nsName ns="urn:koma:metadata"/>
+            <nsName ns="urn:koma:manifest"/>
+            <nsName ns="urn:koma:navigation"/>
+          </choice>
+        </except>
+      </anyName>
+      <zeroOrMore>
+        <choice>
+          <attribute>
+            <anyName/>
+            <text/>
+          </attribute>
+          <ref name="ForeignElement"/>
+          <text/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="Lang">
+    <a:documentation>4.3 Data types</a:documentation>
+    <attribute>
+      <name ns="http://www.w3.org/XML/1998/namespace">lang</name>
+      <choice>
+        <data type="language"/>
+        <value></value>
+      </choice>
+    </attribute>
+  </define>
+  <define name="Boolean">
+    <choice>
+      <value>true</value>
+      <value>false</value>
+    </choice>
+  </define>
+  <define name="Token">
+    <data type="string">
+      <param name="pattern">[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?</param>
+    </data>
+  </define>
+  <define name="Decimal01">
+    <data type="string">
+      <param name="pattern">(0(\.[0-9]{1,6})?|1(\.0{1,6})?)</param>
+    </data>
+  </define>
+  <define name="NonEmpty">
+    <data type="string">
+      <param name="pattern">[\s\S]*\S[\s\S]*</param>
+    </data>
+  </define>
+</grammar>

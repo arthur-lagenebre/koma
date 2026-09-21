@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+         ns="urn:koma:manifest"
+         xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
+         xmlns:gc="urn:koma:container"
+         xmlns:gf="urn:koma:manifest"
+         xmlns:gm="urn:koma:metadata"
+         xmlns:gn="urn:koma:navigation"
+         xmlns:xml="http://www.w3.org/XML/1998/namespace"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <ref name="Manifest"/>
+  </start>
+  <define name="Manifest">
+    <element>
+      <name ns="urn:koma:manifest">Manifest</name>
+      <attribute>
+        <name ns="">version</name>
+        <value>0.9</value>
+      </attribute>
+      <attribute>
+        <name ns="">metadata</name>
+        <value>koma/metadata.xml</value>
+      </attribute>
+      <optional>
+        <attribute>
+          <name ns="">navigation</name>
+          <value>koma/nav.xml</value>
+        </attribute>
+      </optional>
+      <element>
+        <name ns="urn:koma:manifest">Resources</name>
+        <oneOrMore>
+          <ref name="Item"/>
+        </oneOrMore>
+      </element>
+      <element>
+        <name ns="urn:koma:manifest">Spine</name>
+        <oneOrMore>
+          <ref name="ItemRef"/>
+        </oneOrMore>
+      </element>
+      <optional>
+        <ref name="Extensions"/>
+      </optional>
+    </element>
+  </define>
+  <define name="Item">
+    <a:documentation>8.1 Items</a:documentation>
+    <element>
+      <name ns="urn:koma:manifest">Item</name>
+      <attribute>
+        <name ns="">id</name>
+        <data type="NCName"/>
+      </attribute>
+      <attribute>
+        <name ns="">href</name>
+        <ref name="Path"/>
+      </attribute>
+      <attribute>
+        <name ns="">media-type</name>
+        <choice>
+          <value>image/jpeg</value>
+          <value>image/png</value>
+          <value>image/webp</value>
+        </choice>
+      </attribute>
+      <attribute>
+        <name ns="">width</name>
+        <ref name="PositiveInteger"/>
+      </attribute>
+      <attribute>
+        <name ns="">height</name>
+        <ref name="PositiveInteger"/>
+      </attribute>
+      <optional>
+        <attribute>
+          <name ns="">roles</name>
+          <ref name="TokenList"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute>
+          <name ns="">page-span</name>
+          <choice>
+            <value>1</value>
+            <value>2</value>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute>
+          <name ns="">background-color</name>
+          <ref name="Color"/>
+        </attribute>
+      </optional>
+      <optional>
+        <ref name="Checksum"/>
+      </optional>
+      <optional>
+        <ref name="ItemAccessibility"/>
+      </optional>
+      <optional>
+        <ref name="Extensions"/>
+      </optional>
+    </element>
+  </define>
+  <define name="Checksum">
+    <a:documentation>8.6 Integrity</a:documentation>
+    <element>
+      <name ns="urn:koma:manifest">Checksum</name>
+      <attribute>
+        <name ns="">algorithm</name>
+        <value>sha-256</value>
+      </attribute>
+      <data type="string">
+        <param name="pattern">[0-9a-f]{64}</param>
+      </data>
+    </element>
+  </define>
+  <define name="ItemAccessibility">
+    <a:documentation>8.7 Page-level accessibility</a:documentation>
+    <element>
+      <name ns="urn:koma:manifest">Accessibility</name>
+      <choice>
+        <group>
+          <attribute>
+            <name ns="">decorative</name>
+            <value>true</value>
+          </attribute>
+          <zeroOrMore>
+            <element>
+              <name ns="urn:koma:manifest">Description</name>
+              <optional>
+                <ref name="Lang"/>
+              </optional>
+              <ref name="NonEmpty"/>
+            </element>
+          </zeroOrMore>
+        </group>
+        <group>
+          <optional>
+            <attribute>
+              <name ns="">decorative</name>
+              <value>false</value>
+            </attribute>
+          </optional>
+          <zeroOrMore>
+            <element>
+              <name ns="urn:koma:manifest">AlternativeText</name>
+              <optional>
+                <ref name="Lang"/>
+              </optional>
+              <ref name="NonEmpty"/>
+            </element>
+          </zeroOrMore>
+          <zeroOrMore>
+            <element>
+              <name ns="urn:koma:manifest">Description</name>
+              <optional>
+                <ref name="Lang"/>
+              </optional>
+              <ref name="NonEmpty"/>
+            </element>
+          </zeroOrMore>
+        </group>
+      </choice>
+    </element>
+  </define>
+  <define name="ItemRef">
+    <a:documentation>8.8 Spine</a:documentation>
+    <element>
+      <name ns="urn:koma:manifest">ItemRef</name>
+      <attribute>
+        <name ns="">item</name>
+        <data type="NCName"/>
+      </attribute>
+      <optional>
+        <attribute>
+          <name ns="">spread-position</name>
+          <choice>
+            <value>auto</value>
+            <value>left</value>
+            <value>right</value>
+            <value>center</value>
+          </choice>
+        </attribute>
+      </optional>
+    </element>
+  </define>
+  <define name="Extensions">
+    <a:documentation>12. Extensions</a:documentation>
+    <element>
+      <name ns="urn:koma:manifest">Extensions</name>
+      <oneOrMore>
+        <ref name="ExtensionChild"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="ExtensionChild">
+    <element>
+      <anyName>
+        <except>
+          <choice>
+            <nsName ns="urn:koma:container"/>
+            <nsName ns="urn:koma:metadata"/>
+            <nsName ns="urn:koma:manifest"/>
+            <nsName ns="urn:koma:navigation"/>
+          </choice>
+        </except>
+      </anyName>
+      <optional>
+        <attribute>
+          <name ns="urn:koma:metadata">essential</name>
+          <ref name="Boolean"/>
+        </attribute>
+      </optional>
+      <ref name="AnyContent"/>
+    </element>
+  </define>
+  <define name="AnyContent">
+    <zeroOrMore>
+      <choice>
+        <attribute>
+          <anyName>
+            <except>
+              <name ns="urn:koma:metadata">essential</name>
+            </except>
+          </anyName>
+          <text/>
+        </attribute>
+        <ref name="ForeignElement"/>
+        <text/>
+      </choice>
+    </zeroOrMore>
+  </define>
+  <define name="ForeignElement">
+    <element>
+      <anyName>
+        <except>
+          <choice>
+            <nsName ns="urn:koma:container"/>
+            <nsName ns="urn:koma:metadata"/>
+            <nsName ns="urn:koma:manifest"/>
+            <nsName ns="urn:koma:navigation"/>
+          </choice>
+        </except>
+      </anyName>
+      <zeroOrMore>
+        <choice>
+          <attribute>
+            <anyName/>
+            <text/>
+          </attribute>
+          <ref name="ForeignElement"/>
+          <text/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="Lang">
+    <a:documentation>4.3 Data types</a:documentation>
+    <attribute>
+      <name ns="http://www.w3.org/XML/1998/namespace">lang</name>
+      <choice>
+        <data type="language"/>
+        <value></value>
+      </choice>
+    </attribute>
+  </define>
+  <define name="Boolean">
+    <choice>
+      <value>true</value>
+      <value>false</value>
+    </choice>
+  </define>
+  <define name="PositiveInteger">
+    <data type="string">
+      <param name="pattern">[1-9][0-9]*</param>
+    </data>
+  </define>
+  <define name="Color">
+    <data type="string">
+      <param name="pattern">#[0-9A-Fa-f]{6}</param>
+    </data>
+  </define>
+  <define name="TokenList">
+    <data type="string">
+      <param name="pattern">[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?(;[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?)*</param>
+    </data>
+  </define>
+  <define name="NonEmpty">
+    <data type="string">
+      <param name="pattern">[\s\S]*\S[\s\S]*</param>
+    </data>
+  </define>
+  <define name="Path">
+    <data type="string">
+      <param name="pattern">(([^/\\.%?\#]|\.[^/\\.%?\#]|\.\.[^/\\%?\#])[^/\\%?\#]*/)*(([^/\\.%?\#]|\.[^/\\.%?\#]|\.\.[^/\\%?\#])[^/\\%?\#]*)</param>
+    </data>
+  </define>
+</grammar>

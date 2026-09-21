@@ -8,7 +8,6 @@
 
 # Generated
 dist/
-*.rng
 __pycache__/
 *.pyc
 .venv/

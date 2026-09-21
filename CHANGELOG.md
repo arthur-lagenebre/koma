@@ -13,6 +13,11 @@ are the convention that stands in for it.
 
 ## Unreleased
 
+- The schemas are published in their XML form too: `schemas/0.9/*.rng` are
+  generated from the compact `.rnc` by `tools/build_schemas.py` and committed,
+  so that a validator without a compact-syntax parser can load them.
+  `test_schemas` fails when one is stale, and `check_corpus.py` loads them by
+  default. The CI artifact that carried them is gone.
 - §2.1: `mimetype-data-descriptor` and `mimetype-extra-field`, with a corpus
   case each, for two faults reported until now as `mimetype-content`.
 - §3: normalization and case folding use Unicode 16.0.0. The reference

@@ -435,7 +435,7 @@ def main(corpus, schema_dir):
     expected = json.load(open(os.path.join(corpus, "expected.json")))["cases"]
     ok = miss = uncovered = 0
     for c in expected:
-        errors, warnings = check(os.path.join(corpus, c["package"]), rng)
+        errors, warnings = check(os.path.join(corpus, "packages", c["package"]), rng)
         want, code = c["outcome"], c["code"]
         if want == "valid":
             good = not errors
@@ -456,4 +456,6 @@ def main(corpus, schema_dir):
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1] if len(sys.argv) > 1 else "corpus",
-                  sys.argv[2] if len(sys.argv) > 2 else ".."))
+                  sys.argv[2] if len(sys.argv) > 2
+                  else os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                    "schemas", "0.9")))

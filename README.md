@@ -22,7 +22,7 @@ What raises the version to `1.0`, from §5.0.1:
 
 ```text
 spec/koma-0.9.md        the specification
-schemas/0.9/            RELAX NG compact schemas and reference instances
+schemas/0.9/            RELAX NG schemas, compact and XML forms, and reference instances
 corpus/                 conformance corpus and expected.json
 tools/                  reference implementations and the CBZ converter
 tests/                  what CI runs

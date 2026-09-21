@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+         ns="urn:koma:container"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <ref name="Container"/>
+  </start>
+  <define name="Container">
+    <element>
+      <name ns="urn:koma:container">Container</name>
+      <attribute>
+        <name ns="">version</name>
+        <value>0.9</value>
+      </attribute>
+      <element>
+        <name ns="urn:koma:container">RootFiles</name>
+        <element>
+          <name ns="urn:koma:container">RootFile</name>
+          <attribute>
+            <name ns="">full-path</name>
+            <value>koma/manifest.xml</value>
+          </attribute>
+          <attribute>
+            <name ns="">media-type</name>
+            <value>application/vnd.koma.manifest+xml</value>
+          </attribute>
+        </element>
+      </element>
+    </element>
+  </define>
+</grammar>

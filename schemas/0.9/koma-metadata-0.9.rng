@@ -1,0 +1,935 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+         ns="urn:koma:metadata"
+         xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
+         xmlns:gc="urn:koma:container"
+         xmlns:gf="urn:koma:manifest"
+         xmlns:gm="urn:koma:metadata"
+         xmlns:gn="urn:koma:navigation"
+         xmlns:xml="http://www.w3.org/XML/1998/namespace"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <ref name="Metadata"/>
+  </start>
+  <define name="Metadata">
+    <element>
+      <name ns="urn:koma:metadata">Metadata</name>
+      <attribute>
+        <name ns="">version</name>
+        <value>0.9</value>
+      </attribute>
+      <optional>
+        <ref name="Lang"/>
+      </optional>
+      <ref name="Identifiers"/>
+      <ref name="Titles"/>
+      <ref name="Languages"/>
+      <optional>
+        <ref name="Collections"/>
+      </optional>
+      <optional>
+        <ref name="Contributors"/>
+      </optional>
+      <optional>
+        <ref name="Descriptions"/>
+      </optional>
+      <optional>
+        <ref name="Publication"/>
+      </optional>
+      <optional>
+        <ref name="Subjects"/>
+      </optional>
+      <optional>
+        <ref name="Entities"/>
+      </optional>
+      <ref name="Reading"/>
+      <optional>
+        <ref name="Content"/>
+      </optional>
+      <optional>
+        <ref name="Accessibility"/>
+      </optional>
+      <optional>
+        <ref name="Ratings"/>
+      </optional>
+      <optional>
+        <ref name="Links"/>
+      </optional>
+      <optional>
+        <ref name="Rights"/>
+      </optional>
+      <optional>
+        <ref name="Provenance"/>
+      </optional>
+      <optional>
+        <ref name="Extensions"/>
+      </optional>
+    </element>
+  </define>
+  <define name="Identifiers">
+    <a:documentation>7.2 Identifiers</a:documentation>
+    <element>
+      <name ns="urn:koma:metadata">Identifiers</name>
+      <oneOrMore>
+        <ref name="Identifier"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="Identifier">
+    <element>
+      <name ns="urn:koma:metadata">Identifier</name>
+      <attribute>
+        <name ns="">scheme</name>
+        <ref name="Token"/>
+      </attribute>
+      <optional>
+        <attribute>
+          <name ns="">primary</name>
+          <ref name="Boolean"/>
+        </attribute>
+      </optional>
+      <ref name="NonEmpty"/>
+    </element>
+  </define>
+  <define name="Titles">
+    <a:documentation>7.3 Titles</a:documentation>
+    <element>
+      <name ns="urn:koma:metadata">Titles</name>
+      <oneOrMore>
+        <ref name="Title"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="Title">
+    <element>
+      <name ns="urn:koma:metadata">Title</name>
+      <attribute>
+        <name ns="">type</name>
+        <ref name="Token"/>
+      </attribute>
+      <optional>
+        <ref name="Lang"/>
+      </optional>
+      <ref name="NonEmpty"/>
+    </element>
+  </define>
+  <define name="Languages">
+    <a:documentation>7.4 Languages</a:documentation>
+    <element>
+      <name ns="urn:koma:metadata">Languages</name>
+      <oneOrMore>
+        <ref name="Language"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="Language">
+    <element>
+      <name ns="urn:koma:metadata">Language</name>
+      <attribute>
+        <name ns="">role</name>
+        <ref name="Token"/>
+      </attribute>
+      <ref name="LanguageTag"/>
+    </element>
+  </define>
+  <define name="Collections">
+    <a:documentation>7.5 Collections</a:documentation>
+    <element>
+      <name ns="urn:koma:metadata">Collections</name>
+      <oneOrMore>
+        <ref name="Collection"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="Collection">
+    <element>
+      <name ns="urn:koma:metadata">Collection</name>
+      <attribute>
+        <name ns="">type</name>
+        <ref name="Token"/>
+      </attribute>
+      <optional>
+        <attribute>
+          <name ns="">position</name>
+          <ref name="NonEmpty"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute>
+          <name ns="">total</name>
+          <ref name="NonEmpty"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute>
+          <name ns="">relation</name>
+          <ref name="Token"/>
+        </attribute>
+      </optional>
+      <oneOrMore>
+        <ref name="SimpleName"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="SimpleName">
+    <element>
+      <name ns="urn:koma:metadata">Name</name>
+      <optional>
+        <ref name="Lang"/>
+      </optional>
+      <ref name="NonEmpty"/>
+    </element>
+  </define>
+  <define name="Contributors">
+    <a:documentation>7.6 Contributors</a:documentation>
+    <element>
+      <name ns="urn:koma:metadata">Contributors</name>
+      <oneOrMore>
+        <ref name="Contributor"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="Contributor">
+    <element>
+      <name ns="urn:koma:metadata">Contributor</name>
+      <attribute>
+        <name ns="">type</name>
+        <choice>
+          <value>person</value>
+          <value>organization</value>
+        </choice>
+      </attribute>
+      <attribute>
+        <name ns="">roles</name>
+        <ref name="TokenList"/>
+      </attribute>
+      <oneOrMore>
+        <ref name="ContributorName"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="ContributorName">
+    <element>
+      <name ns="urn:koma:metadata">Name</name>
+      <optional>
+        <attribute>
+          <name ns="">type</name>
+          <ref name="Token"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute>
+          <name ns="">display-order</name>
+          <ref name="PositiveInteger"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute>
+          <name ns="">sort-order</name>
+          <ref name="PositiveInteger"/>
+        </attribute>
+      </optional>
+      <optional>
+        <ref name="Lang"/>
+      </optional>
+      <ref name="NonEmpty"/>
+    </element>
+  </define>
+  <define name="Descriptions">
+    <a:documentation>7.7 Descriptions</a:documentation>
+    <element>
+      <name ns="urn:koma:metadata">Descriptions</name>
+      <oneOrMore>
+        <ref name="Description"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="Description">
+    <element>
+      <name ns="urn:koma:metadata">Description</name>
+      <attribute>
+        <name ns="">type</name>
+        <ref name="Token"/>
+      </attribute>
+      <optional>
+        <ref name="Lang"/>
+      </optional>
+      <ref name="NonEmpty"/>
+    </element>
+  </define>
+  <define name="Publication">
+    <a:documentation>7.8 Publication</a:documentation>
+    <element>
+      <name ns="urn:koma:metadata">Publication</name>
+      <optional>
+        <element>
+          <name ns="urn:koma:metadata">Publisher</name>
+          <optional>
+            <ref name="Lang"/>
+          </optional>
+          <ref name="NonEmpty"/>
+        </element>
+      </optional>
+      <optional>
+        <element>
+          <name ns="urn:koma:metadata">Imprint</name>
+          <optional>
+            <ref name="Lang"/>
+          </optional>
+          <ref name="NonEmpty"/>
+        </element>
+      </optional>
+      <optional>
+        <element>
+          <name ns="urn:koma:metadata">Place</name>
+          <optional>
+            <ref name="Lang"/>
+          </optional>
+          <ref name="NonEmpty"/>
+        </element>
+      </optional>
+      <optional>
+        <element>
+          <name ns="urn:koma:metadata">Edition</name>
+          <optional>
+            <attribute>
+              <name ns="">number</name>
+              <ref name="PositiveInteger"/>
+            </attribute>
+          </optional>
+          <optional>
+            <ref name="Lang"/>
+          </optional>
+          <ref name="NonEmpty"/>
+        </element>
+      </optional>
+      <zeroOrMore>
+        <ref name="PublicationDate"/>
+      </zeroOrMore>
+      <optional>
+        <element>
+          <name ns="urn:koma:metadata">PhysicalFormat</name>
+          <attribute>
+            <name ns="">trim-width</name>
+            <ref name="PositiveInteger"/>
+          </attribute>
+          <attribute>
+            <name ns="">trim-height</name>
+            <ref name="PositiveInteger"/>
+          </attribute>
+          <attribute>
+            <name ns="">unit</name>
+            <value>mm</value>
+          </attribute>
+        </element>
+      </optional>
+    </element>
+  </define>
+  <define name="PublicationDate">
+    <element>
+      <name ns="urn:koma:metadata">Date</name>
+      <attribute>
+        <name ns="">event</name>
+        <ref name="Token"/>
+      </attribute>
+      <ref name="DateValue"/>
+    </element>
+  </define>
+  <define name="Subjects">
+    <a:documentation>7.9 Subjects</a:documentation>
+    <element>
+      <name ns="urn:koma:metadata">Subjects</name>
+      <oneOrMore>
+        <ref name="Subject"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="Subject">
+    <element>
+      <name ns="urn:koma:metadata">Subject</name>
+      <optional>
+        <attribute>
+          <name ns="">type</name>
+          <ref name="Token"/>
+        </attribute>
+      </optional>
+      <optional>
+        <ref name="Lang"/>
+      </optional>
+      <choice>
+        <group>
+          <attribute>
+            <name ns="">scheme</name>
+            <ref name="NonEmpty"/>
+          </attribute>
+          <attribute>
+            <name ns="">code</name>
+            <ref name="NonEmpty"/>
+          </attribute>
+          <choice>
+            <ref name="NonEmpty"/>
+            <empty/>
+          </choice>
+        </group>
+        <group>
+          <optional>
+            <attribute>
+              <name ns="">scheme</name>
+              <ref name="NonEmpty"/>
+            </attribute>
+          </optional>
+          <ref name="NonEmpty"/>
+        </group>
+      </choice>
+    </element>
+  </define>
+  <define name="Entities">
+    <a:documentation>7.10 Entities</a:documentation>
+    <element>
+      <name ns="urn:koma:metadata">Entities</name>
+      <oneOrMore>
+        <ref name="Entity"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="Entity">
+    <element>
+      <name ns="urn:koma:metadata">Entity</name>
+      <attribute>
+        <name ns="">type</name>
+        <ref name="Token"/>
+      </attribute>
+      <optional>
+        <attribute>
+          <name ns="">role</name>
+          <ref name="Token"/>
+        </attribute>
+      </optional>
+      <oneOrMore>
+        <ref name="EntityName"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="EntityName">
+    <element>
+      <name ns="urn:koma:metadata">Name</name>
+      <optional>
+        <attribute>
+          <name ns="">type</name>
+          <ref name="Token"/>
+        </attribute>
+      </optional>
+      <optional>
+        <ref name="Lang"/>
+      </optional>
+      <ref name="NonEmpty"/>
+    </element>
+  </define>
+  <define name="Reading">
+    <a:documentation>7.11 Reading</a:documentation>
+    <element>
+      <name ns="urn:koma:metadata">Reading</name>
+      <attribute>
+        <name ns="">direction</name>
+        <choice>
+          <value>ltr</value>
+          <value>rtl</value>
+        </choice>
+      </attribute>
+      <optional>
+        <attribute>
+          <name ns="">spread</name>
+          <choice>
+            <value>none</value>
+            <value>auto</value>
+            <value>force</value>
+          </choice>
+        </attribute>
+      </optional>
+    </element>
+  </define>
+  <define name="Content">
+    <a:documentation>7.12 Content</a:documentation>
+    <element>
+      <name ns="urn:koma:metadata">Content</name>
+      <optional>
+        <attribute>
+          <name ns="">color-mode</name>
+          <choice>
+            <value>monochrome</value>
+            <value>color</value>
+            <value>mixed</value>
+            <value>unknown</value>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute>
+          <name ns="">original-medium</name>
+          <ref name="Token"/>
+        </attribute>
+      </optional>
+    </element>
+  </define>
+  <define name="Accessibility">
+    <a:documentation>7.13 Accessibility</a:documentation>
+    <element>
+      <name ns="urn:koma:metadata">Accessibility</name>
+      <oneOrMore>
+        <element>
+          <name ns="urn:koma:metadata">AccessMode</name>
+          <ref name="Token"/>
+        </element>
+      </oneOrMore>
+      <zeroOrMore>
+        <element>
+          <name ns="urn:koma:metadata">AccessModeSufficient</name>
+          <ref name="TokenList"/>
+        </element>
+      </zeroOrMore>
+      <zeroOrMore>
+        <element>
+          <name ns="urn:koma:metadata">AccessibilityFeature</name>
+          <ref name="Token"/>
+        </element>
+      </zeroOrMore>
+      <zeroOrMore>
+        <element>
+          <name ns="urn:koma:metadata">AccessibilityHazard</name>
+          <ref name="Token"/>
+        </element>
+      </zeroOrMore>
+      <zeroOrMore>
+        <element>
+          <name ns="urn:koma:metadata">AccessibilitySummary</name>
+          <optional>
+            <ref name="Lang"/>
+          </optional>
+          <ref name="NonEmpty"/>
+        </element>
+      </zeroOrMore>
+      <zeroOrMore>
+        <element>
+          <name ns="urn:koma:metadata">ConformsTo</name>
+          <attribute>
+            <name ns="">identifier</name>
+            <ref name="NonEmpty"/>
+          </attribute>
+          <optional>
+            <attribute>
+              <name ns="">href</name>
+              <ref name="IRI"/>
+            </attribute>
+          </optional>
+        </element>
+      </zeroOrMore>
+      <optional>
+        <element>
+          <name ns="urn:koma:metadata">Certification</name>
+          <optional>
+            <attribute>
+              <name ns="">certified-by</name>
+              <ref name="NonEmpty"/>
+            </attribute>
+          </optional>
+          <optional>
+            <attribute>
+              <name ns="">credential</name>
+              <ref name="NonEmpty"/>
+            </attribute>
+          </optional>
+          <optional>
+            <attribute>
+              <name ns="">report</name>
+              <ref name="IRI"/>
+            </attribute>
+          </optional>
+        </element>
+      </optional>
+    </element>
+  </define>
+  <define name="Ratings">
+    <a:documentation>7.14 Ratings</a:documentation>
+    <element>
+      <name ns="urn:koma:metadata">Ratings</name>
+      <zeroOrMore>
+        <ref name="Rating"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="ContentWarning"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="Rating">
+    <element>
+      <name ns="urn:koma:metadata">Rating</name>
+      <attribute>
+        <name ns="">scheme</name>
+        <ref name="NonEmpty"/>
+      </attribute>
+      <attribute>
+        <name ns="">value</name>
+        <ref name="NonEmpty"/>
+      </attribute>
+      <optional>
+        <attribute>
+          <name ns="">region</name>
+          <data type="string">
+            <param name="pattern">[A-Z]{2}</param>
+          </data>
+        </attribute>
+      </optional>
+    </element>
+  </define>
+  <define name="ContentWarning">
+    <element>
+      <name ns="urn:koma:metadata">ContentWarning</name>
+      <attribute>
+        <name ns="">type</name>
+        <ref name="Token"/>
+      </attribute>
+      <optional>
+        <ref name="Lang"/>
+      </optional>
+      <choice>
+        <ref name="NonEmpty"/>
+        <empty/>
+      </choice>
+    </element>
+  </define>
+  <define name="Links">
+    <a:documentation>7.15 Links</a:documentation>
+    <element>
+      <name ns="urn:koma:metadata">Links</name>
+      <oneOrMore>
+        <ref name="Link"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="Link">
+    <element>
+      <name ns="urn:koma:metadata">Link</name>
+      <attribute>
+        <name ns="">rel</name>
+        <ref name="Token"/>
+      </attribute>
+      <attribute>
+        <name ns="">href</name>
+        <ref name="IRI"/>
+      </attribute>
+      <optional>
+        <attribute>
+          <name ns="">media-type</name>
+          <ref name="NonEmpty"/>
+        </attribute>
+      </optional>
+      <optional>
+        <ref name="Lang"/>
+      </optional>
+      <choice>
+        <ref name="NonEmpty"/>
+        <empty/>
+      </choice>
+    </element>
+  </define>
+  <define name="Rights">
+    <a:documentation>7.16 Rights</a:documentation>
+    <element>
+      <name ns="urn:koma:metadata">Rights</name>
+      <zeroOrMore>
+        <element>
+          <name ns="urn:koma:metadata">Copyright</name>
+          <optional>
+            <ref name="Lang"/>
+          </optional>
+          <ref name="NonEmpty"/>
+        </element>
+      </zeroOrMore>
+      <zeroOrMore>
+        <element>
+          <name ns="urn:koma:metadata">License</name>
+          <optional>
+            <attribute>
+              <name ns="">identifier</name>
+              <ref name="NonEmpty"/>
+            </attribute>
+          </optional>
+          <optional>
+            <attribute>
+              <name ns="">href</name>
+              <ref name="IRI"/>
+            </attribute>
+          </optional>
+        </element>
+      </zeroOrMore>
+      <zeroOrMore>
+        <element>
+          <name ns="urn:koma:metadata">Statement</name>
+          <optional>
+            <ref name="Lang"/>
+          </optional>
+          <ref name="NonEmpty"/>
+        </element>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="Provenance">
+    <a:documentation>7.17 Provenance</a:documentation>
+    <element>
+      <name ns="urn:koma:metadata">Provenance</name>
+      <optional>
+        <ref name="Source"/>
+      </optional>
+      <optional>
+        <ref name="Digitization"/>
+      </optional>
+      <zeroOrMore>
+        <element>
+          <name ns="urn:koma:metadata">Note</name>
+          <optional>
+            <ref name="Lang"/>
+          </optional>
+          <ref name="NonEmpty"/>
+        </element>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="Source">
+    <element>
+      <name ns="urn:koma:metadata">Source</name>
+      <attribute>
+        <name ns="">type</name>
+        <ref name="Token"/>
+      </attribute>
+      <zeroOrMore>
+        <element>
+          <name ns="urn:koma:metadata">Identifier</name>
+          <attribute>
+            <name ns="">scheme</name>
+            <ref name="Token"/>
+          </attribute>
+          <ref name="NonEmpty"/>
+        </element>
+      </zeroOrMore>
+      <optional>
+        <element>
+          <name ns="urn:koma:metadata">Publisher</name>
+          <optional>
+            <ref name="Lang"/>
+          </optional>
+          <ref name="NonEmpty"/>
+        </element>
+      </optional>
+      <optional>
+        <element>
+          <name ns="urn:koma:metadata">Edition</name>
+          <optional>
+            <ref name="Lang"/>
+          </optional>
+          <ref name="NonEmpty"/>
+        </element>
+      </optional>
+      <zeroOrMore>
+        <element>
+          <name ns="urn:koma:metadata">Date</name>
+          <attribute>
+            <name ns="">event</name>
+            <ref name="Token"/>
+          </attribute>
+          <ref name="DateValue"/>
+        </element>
+      </zeroOrMore>
+      <optional>
+        <element>
+          <name ns="urn:koma:metadata">Holding</name>
+          <attribute>
+            <name ns="">institution</name>
+            <ref name="NonEmpty"/>
+          </attribute>
+          <optional>
+            <attribute>
+              <name ns="">shelfmark</name>
+              <ref name="NonEmpty"/>
+            </attribute>
+          </optional>
+        </element>
+      </optional>
+    </element>
+  </define>
+  <define name="Digitization">
+    <element>
+      <name ns="urn:koma:metadata">Digitization</name>
+      <optional>
+        <element>
+          <name ns="urn:koma:metadata">Agent</name>
+          <optional>
+            <ref name="Lang"/>
+          </optional>
+          <ref name="NonEmpty"/>
+        </element>
+      </optional>
+      <optional>
+        <element>
+          <name ns="urn:koma:metadata">Date</name>
+          <ref name="DateValue"/>
+        </element>
+      </optional>
+      <optional>
+        <element>
+          <name ns="urn:koma:metadata">Method</name>
+          <ref name="Token"/>
+        </element>
+      </optional>
+      <optional>
+        <element>
+          <name ns="urn:koma:metadata">Resolution</name>
+          <attribute>
+            <name ns="">value</name>
+            <ref name="PositiveInteger"/>
+          </attribute>
+          <attribute>
+            <name ns="">unit</name>
+            <choice>
+              <value>dpi</value>
+              <value>ppcm</value>
+            </choice>
+          </attribute>
+        </element>
+      </optional>
+      <optional>
+        <element>
+          <name ns="urn:koma:metadata">Equipment</name>
+          <ref name="NonEmpty"/>
+        </element>
+      </optional>
+      <optional>
+        <element>
+          <name ns="urn:koma:metadata">Processing</name>
+          <ref name="TokenList"/>
+        </element>
+      </optional>
+    </element>
+  </define>
+  <define name="Extensions">
+    <a:documentation>12. Extensions</a:documentation>
+    <element>
+      <name ns="urn:koma:metadata">Extensions</name>
+      <oneOrMore>
+        <ref name="ExtensionChild"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="ExtensionChild">
+    <element>
+      <anyName>
+        <except>
+          <choice>
+            <nsName ns="urn:koma:container"/>
+            <nsName ns="urn:koma:metadata"/>
+            <nsName ns="urn:koma:manifest"/>
+            <nsName ns="urn:koma:navigation"/>
+          </choice>
+        </except>
+      </anyName>
+      <optional>
+        <attribute>
+          <name ns="urn:koma:metadata">essential</name>
+          <ref name="Boolean"/>
+        </attribute>
+      </optional>
+      <ref name="AnyContent"/>
+    </element>
+  </define>
+  <define name="AnyContent">
+    <zeroOrMore>
+      <choice>
+        <attribute>
+          <anyName>
+            <except>
+              <name ns="urn:koma:metadata">essential</name>
+            </except>
+          </anyName>
+          <text/>
+        </attribute>
+        <ref name="ForeignElement"/>
+        <text/>
+      </choice>
+    </zeroOrMore>
+  </define>
+  <define name="ForeignElement">
+    <element>
+      <anyName>
+        <except>
+          <choice>
+            <nsName ns="urn:koma:container"/>
+            <nsName ns="urn:koma:metadata"/>
+            <nsName ns="urn:koma:manifest"/>
+            <nsName ns="urn:koma:navigation"/>
+          </choice>
+        </except>
+      </anyName>
+      <zeroOrMore>
+        <choice>
+          <attribute>
+            <anyName/>
+            <text/>
+          </attribute>
+          <ref name="ForeignElement"/>
+          <text/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="Lang">
+    <a:documentation>4.3 Data types</a:documentation>
+    <attribute>
+      <name ns="http://www.w3.org/XML/1998/namespace">lang</name>
+      <choice>
+        <ref name="LanguageTag"/>
+        <value></value>
+      </choice>
+    </attribute>
+  </define>
+  <define name="Boolean">
+    <choice>
+      <value>true</value>
+      <value>false</value>
+    </choice>
+  </define>
+  <define name="PositiveInteger">
+    <data type="string">
+      <param name="pattern">[1-9][0-9]*</param>
+    </data>
+  </define>
+  <define name="Token">
+    <data type="string">
+      <param name="pattern">[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?</param>
+    </data>
+  </define>
+  <define name="TokenList">
+    <data type="string">
+      <param name="pattern">[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?(;[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?)*</param>
+    </data>
+  </define>
+  <define name="LanguageTag">
+    <data type="language"/>
+  </define>
+  <define name="IRI">
+    <data type="string">
+      <param name="pattern">[a-zA-Z][a-zA-Z0-9+.\-]*:[\s\S]+</param>
+    </data>
+  </define>
+  <define name="NonEmpty">
+    <data type="string">
+      <param name="pattern">[\s\S]*\S[\s\S]*</param>
+    </data>
+  </define>
+  <define name="DateValue">
+    <choice>
+      <data type="gYear"/>
+      <data type="gYearMonth"/>
+      <data type="date"/>
+      <data type="dateTime"/>
+    </choice>
+  </define>
+</grammar>

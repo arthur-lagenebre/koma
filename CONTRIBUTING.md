@@ -70,3 +70,13 @@ Do not commit real comics, scans, page images or CBZ archives, in any directory,
 Specification text uses BCP 14 keywords in uppercase only; a lowercase "must" carries no weight and reads as an oversight. Core elements are PascalCase, attributes and tokens are lowercase or kebab-case. New tokens in an open vocabulary need a fallback entry in the table of §4.5.1, or they are unusable by older readers.
 
 Python targets 3.10+ and the standard library plus `lxml`, `Pillow` and `rnc2rng`. Tools print their assumptions on stderr rather than guessing quietly.
+
+## Schemas
+
+The `.rnc` files are the schemas people read and edit. The `.rng` files beside them are generated from them and committed, because a validator in a language with no compact-syntax parser can load only the XML form. After editing an `.rnc`, regenerate:
+
+```sh
+python tools/build_schemas.py
+```
+
+`test_schemas` fails when an `.rng` no longer matches its `.rnc`.

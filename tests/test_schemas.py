@@ -10,7 +10,6 @@ the acceptance half.
 import os
 import sys
 
-import rnc2rng
 from lxml import etree
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -22,16 +21,33 @@ NS = {"md": "urn:koma:metadata", "mf": "urn:koma:manifest",
       "nv": "urn:koma:navigation"}
 
 
-def compile_schemas(outdir=None):
+sys.path.insert(0, os.path.join(ROOT, "tools"))
+
+import build_schemas  # noqa: E402
+
+
+def compile_schemas():
+    """The committed XML schemas, compiled.
+
+    What is tested is what is published: the .rng files an implementation
+    without a compact-syntax parser loads, not a fresh conversion of the .rnc
+    that nobody else would see.
+    """
     out = {}
-    for name in ("container", "metadata", "manifest", "navigation"):
-        rnc = os.path.join(SCHEMAS, f"koma-{name}-0.9.rnc")
-        rng_text = rnc2rng.dumps(rnc2rng.load(open(rnc)))
-        if outdir:
-            with open(os.path.join(outdir, f"koma-{name}-0.9.rng"), "w") as f:
-                f.write(rng_text)
-        out[name] = etree.RelaxNG(etree.fromstring(rng_text.encode()))
+    for name in build_schemas.NAMES:
+        with open(build_schemas.rng_path(name), "rb") as fh:
+            out[name] = etree.RelaxNG(etree.fromstring(fh.read()))
     return out
+
+
+def stale_schemas():
+    """The .rng files that no longer match the .rnc they come from."""
+    stale = []
+    for name in build_schemas.NAMES:
+        with open(build_schemas.rng_path(name), encoding="utf-8") as fh:
+            if fh.read() != build_schemas.generate(name):
+                stale.append(os.path.basename(build_schemas.rng_path(name)))
+    return stale
 
 
 def mutations():
@@ -137,8 +153,13 @@ EXPECTED_INSTANCES = 4
 
 
 def main():
-    rng = compile_schemas()
     failures = 0
+
+    for name in stale_schemas():
+        print(f"FAIL     {name} does not match its .rnc; run python tools/build_schemas.py")
+        failures += 1
+
+    rng = compile_schemas()
 
     # A shrinking suite must not pass green.
     if len(mutations()) != EXPECTED_MUTATIONS:
