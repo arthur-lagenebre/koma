@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Rejected by koma-container-0.9: RootFile/@full-path elsewhere -->
+<Container xmlns="urn:koma:container" version="0.9">
+  <RootFiles>
+    <RootFile full-path="koma/root.xml" media-type="application/vnd.koma.manifest+xml"/>
+  </RootFiles>
+</Container>

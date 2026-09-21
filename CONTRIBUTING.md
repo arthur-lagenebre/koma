@@ -80,3 +80,9 @@ python tools/build_schemas.py
 ```
 
 `test_schemas` fails when an `.rng` no longer matches its `.rnc`.
+
+Every mutation of `test_schemas` is also published as a document under `schemas/0.9/examples/invalid/<schema>/`, so that a validator written elsewhere is tested against the same rejections. After adding or changing a mutation:
+
+```sh
+python tests/test_schemas.py --write
+```

@@ -17,7 +17,9 @@ are the convention that stands in for it.
   generated from the compact `.rnc` by `tools/build_schemas.py` and committed,
   so that a validator without a compact-syntax parser can load them.
   `test_schemas` fails when one is stale, and `check_corpus.py` loads them by
-  default. The CI artifact that carried them is gone.
+  default. The CI artifact that carried them is gone. The 36 documents the
+  schemas must reject are published too, under `schemas/0.9/examples/invalid/`,
+  for other validators to be tested against.
 - §2.1: `mimetype-data-descriptor` and `mimetype-extra-field`, with a corpus
   case each, for two faults reported until now as `mimetype-content`.
 - §3: normalization and case folding use Unicode 16.0.0. The reference
