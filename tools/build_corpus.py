@@ -356,6 +356,15 @@ case("valid-png-gamma", "valid", None,
      "about 188.",
      pages_override={"pages/002.png": linear_png(800, 1200, 128)})
 
+case("valid-multiline-description", "valid", None,
+     "A summary in two paragraphs: its line breaks belong to the text and "
+     "are written as they are (section 14.1).",
+     mutate=sub(D, "  </Languages>\n",
+                "  </Languages>\n"
+                "  <Descriptions>\n"
+                '    <Description type="summary">Premier paragraphe.\n\nSecond paragraphe.</Description>\n'
+                "  </Descriptions>\n"))
+
 case("valid-page-list", "valid", None,
      "A page list, with the two-page spread labelled half by half.",
      mutate=with_page_list())

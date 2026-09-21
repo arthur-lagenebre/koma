@@ -22,11 +22,13 @@ import canonical                          # noqa: E402
 from test_converter import convert        # noqa: E402
 
 FIXTURES = ["manga.cbz", "bare.cbz", "messy.cbz"]
-EXPECTED_PACKAGES = 42
+EXPECTED_PACKAGES = 43
 
 CASES = [
     ("an element with no content is self-closing",
      b'<?xml version="1.0" encoding="UTF-8"?>\n<Reading xmlns="urn:koma:metadata" direction="rtl"/>\n'),
+    ("text on several lines keeps its line breaks between the tags",
+     b'<?xml version="1.0" encoding="UTF-8"?>\n<Descriptions xmlns="urn:koma:metadata">\n  <Description type="summary">Un.\n\nDeux.</Description>\n</Descriptions>\n'),
     ("normalized text stays on its element's line",
      b'<?xml version="1.0" encoding="UTF-8"?>\n<Titles xmlns="urn:koma:metadata">\n  <Title type="main">Le rivage</Title>\n</Titles>\n'),
     ("markup in text and attributes is escaped",

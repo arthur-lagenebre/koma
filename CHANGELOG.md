@@ -13,6 +13,10 @@ are the convention that stands in for it.
 
 ## Unreleased
 
+- §14.1: text on several lines is canonical. An element's text begins and
+  ends on the line of its start tag, and its own line breaks are written as
+  they are, where the rule said one line and a summary in paragraphs could
+  not comply. `valid-multiline-description` witnesses it.
 - §14.1: the canonical serialization now says how a document is laid out —
   one element per line, two spaces per level, attributes on the line of their
   start tag, text on the line of its element, a final LF — which the promise

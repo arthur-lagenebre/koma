@@ -38,6 +38,12 @@
       "note": "Page 2 stores grey 128 with gAMA 1.0 and no profile; in sRGB that is about 188."
     },
     {
+      "package": "valid-multiline-description.koma",
+      "outcome": "valid",
+      "code": null,
+      "note": "A summary in two paragraphs: its line breaks belong to the text and are written as they are (section 14.1)."
+    },
+    {
       "package": "valid-page-list.koma",
       "outcome": "valid",
       "code": null,
