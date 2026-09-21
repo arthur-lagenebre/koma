@@ -8,6 +8,7 @@ the acceptance half.
 """
 
 import os
+import re
 import sys
 
 from lxml import etree
@@ -17,6 +18,7 @@ assert os.path.isdir(os.path.join(ROOT, "schemas")), (
     f"expected the repository root at {ROOT}; run these from tests/")
 SCHEMAS = os.path.join(ROOT, "schemas", "0.9")
 EXAMPLES = os.path.join(SCHEMAS, "examples")
+INVALID = os.path.join(EXAMPLES, "invalid")
 NS = {"md": "urn:koma:metadata", "mf": "urn:koma:manifest",
       "nv": "urn:koma:navigation"}
 
@@ -152,8 +154,67 @@ EXPECTED_MUTATIONS = 36
 EXPECTED_INSTANCES = 4
 
 
+def slug(label):
+    return re.sub(r"[^a-z0-9]+", "-", label.lower()).strip("-")
+
+
+def invalid_instances():
+    """Every mutation as the file it produces, by path under examples/invalid.
+
+    Published so that an implementation in another language tests its
+    validator against the same documents, as the corpus is shared for the
+    rest of section 15: a schema implementation checked against its own
+    mutations can agree with itself and nothing else.
+    """
+    files = {}
+    for label, schema, inst, fn in mutations():
+        doc = etree.parse(os.path.join(EXAMPLES, inst))
+        fn(doc.getroot())
+        doc.getroot().addprevious(etree.Comment(f" Rejected by koma-{schema}-0.9: {label} "))
+        path = os.path.join(schema, slug(label) + ".xml")
+        assert path not in files, f"two mutations share the file name {path}"
+        data = etree.tostring(doc, xml_declaration=True, encoding="UTF-8")
+        files[path] = data.replace(b"-->", b"-->\n", 1) + b"\n"
+    return files
+
+
+def write_invalid_instances():
+    for path, data in invalid_instances().items():
+        target = os.path.join(INVALID, path)
+        os.makedirs(os.path.dirname(target), exist_ok=True)
+        with open(target, "wb") as fh:
+            fh.write(data)
+    print(f"wrote {len(invalid_instances())} documents under {os.path.relpath(INVALID, ROOT)}")
+
+
+def stale_invalid_instances():
+    """What is missing, different or left over under examples/invalid."""
+    expected = invalid_instances()
+    found = set()
+    stale = []
+    for directory, _, names in os.walk(INVALID):
+        for name in names:
+            path = os.path.relpath(os.path.join(directory, name), INVALID)
+            found.add(path.replace(os.sep, "/"))
+    expected_paths = {p.replace(os.sep, "/"): d for p, d in expected.items()}
+    for path, data in expected_paths.items():
+        target = os.path.join(INVALID, path)
+        if path not in found or open(target, "rb").read() != data:
+            stale.append(path)
+    stale.extend(sorted(found - set(expected_paths)))
+    return stale
+
+
 def main():
+    if "--write" in sys.argv[1:]:
+        write_invalid_instances()
+        return 0
+
     failures = 0
+
+    for path in stale_invalid_instances():
+        print(f"FAIL     examples/invalid/{path} is stale; run python tests/test_schemas.py --write")
+        failures += 1
 
     for name in stale_schemas():
         print(f"FAIL     {name} does not match its .rnc; run python tools/build_schemas.py")
@@ -178,9 +239,15 @@ def main():
             for e in rng[name].error_log:
                 print("        ", e.message)
 
+    # The published files, not the mutations in memory: what another
+    # implementation reads is what is checked here.
     for label, schema, inst, fn in mutations():
-        doc = etree.parse(os.path.join(EXAMPLES, inst))
-        fn(doc.getroot())
+        try:
+            doc = etree.parse(os.path.join(INVALID, schema, slug(label) + ".xml"))
+        except (OSError, etree.XMLSyntaxError) as e:
+            failures += 1
+            print(f"FAIL     cannot read the document for {label}: {e}")
+            continue
         if rng[schema].validate(doc):
             failures += 1
             print(f"FAIL     not rejected: {label}")
