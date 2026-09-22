@@ -13,6 +13,12 @@ are the convention that stands in for it.
 
 ## Unreleased
 
+- §15.1: every code now has a corpus case. Twenty-one cases are added and the
+  table of codes without one is gone; `undeclared-page-resource`, which the
+  table described as the defect `spine-target-missing` covers, is a page file
+  the manifest does not declare. The reference validator gained the checks for
+  a split archive, the 16 MiB and depth-100 limits of §13.1, and a document
+  type declaration.
 - The schemas are published in their XML form too: `schemas/0.9/*.rng` are
   generated from the compact `.rnc` by `tools/build_schemas.py` and committed,
   so that a validator without a compact-syntax parser can load them.

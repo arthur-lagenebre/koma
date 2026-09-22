@@ -1105,39 +1105,13 @@ Informational results:
 
 ### 15.1 Error codes
 
-Every result a validator reports carries a code. The codes are those used in `corpus/expected.json`, which §15.2 makes normative by example. This section names the codes for results the corpus does not cover, so that two implementations describe the same defect the same way rather than each inventing a vocabulary.
+Every result a validator reports carries a code. The codes are those used in `corpus/expected.json`, which §15.2 makes normative by example, so that two implementations describe the same defect the same way rather than each inventing a vocabulary.
 
-A code is lowercase ASCII with `-` as separator. Codes are stable: a code is never reused for a different defect, and a defect that later acquires a corpus case keeps the code assigned here.
+A code is lowercase ASCII with `-` as separator. Codes are stable: a code is never reused for a different defect.
 
-Codes with no corpus case, by the layer of §15 that reports them. The result
-column says whether a conforming validator reports the defect as an error or a
-warning.
-
-| Layer | Code | Result | Defect |
-| --- | --- | --- | --- |
-| 1 | `not-a-zip` | error | No end-of-central-directory record, or one pointing outside the file (§3). |
-| 1 | `multipart-archive` | error | The archive spans more than one disk (§3). |
-| 1 | `path-empty` | error | Entry name empty or whitespace only (§3). |
-| 1 | `path-backslash` | error | Entry name containing a backslash (§3). |
-| 1 | `path-empty-segment` | error | Entry name with a leading, trailing or doubled `/` (§3). |
-| 1 | `path-not-normalized` | error | Entry name not in Unicode NFC (§3). |
-| 1 | `entry-count-limit` | error | More ZIP entries than the default profile allows (§13.1). |
-| 1 | `uncompressed-size-limit` | error | Declared total uncompressed size above the default profile (§13.1). |
-| 1 | `compression-ratio-limit` | error | Entry whose declared compression ratio exceeds the default profile (§13.1). |
-| 1 | `declared-size-mismatch` | error | Entry producing more bytes than its own central directory declares (§13.1). |
-| 2 | `missing-required-xml` | error | A core document §1 requires is absent. |
-| 2 | `xml-not-well-formed` | error | A core document is not well-formed XML, or carries a document type declaration (§13). |
-| 2 | `schema-invalid:container` | error | `META-INF/container.xml` does not satisfy its schema. |
-| 2 | `schema-invalid:metadata` | error | `koma/metadata.xml` does not satisfy its schema. |
-| 2 | `schema-invalid:manifest` | error | `koma/manifest.xml` does not satisfy its schema. |
-| 2 | `schema-invalid:navigation` | error | `koma/nav.xml` does not satisfy its schema. |
-| 2 | `xml-document-size-limit` | error | A core document larger than the default profile allows (§13.1). |
-| 2 | `xml-nesting-limit` | error | A core document nested deeper than the default profile allows (§13.1). |
-| 3 | `landmark-duplicate-type` | error | Two landmarks of the same type (§9). |
-| 3 | `undeclared-page-resource` | error | A spine item with no manifest entry (§8). |
-| 3 | `no-publication-accessibility` | warning | The publication declares no accessibility metadata (§7.13). |
-| 4 | `missing-page-resource` | error | A manifest item whose resource is not in the package (§8). |
-| 4 | `unreadable-page-resource` | error | A page resource that cannot be decoded (§8.1). |
+Every code this specification defines now has a corpus case: §15.2 and
+`corpus/expected.json` are the complete list, and this section keeps only the
+rules they are read under.
 
 The `schema-invalid:` family is the one code whose spelling carries a
 parameter: the part after the colon names the core document, and no other code
@@ -1281,6 +1255,7 @@ This projection is lossy in both directions and is not a storage format. A tool 
 
 ### 0.9, fifth draft (this document)
 
+- §15.1: **every code has a corpus case.** The section listed twenty-three codes as having none; two of them had acquired one since, and the corpus gains a case for the other twenty-one, from `not-a-zip` to `unreadable-page-resource`, the limits of §13.1 included. One row also described its code wrongly: `undeclared-page-resource` is a page file the manifest does not declare — the file is there and the declaration is not — and not, as the row said, the reverse case that `spine-target-missing` covers. The list of codes is now `corpus/expected.json` alone, which criterion 3 of §5.0.1 asks for, and the reference validator gained the four checks it was missing: a split archive, a document past the size or the nesting limit, and a document type declaration.
 - §2.1: a **data descriptor** and **extra fields** on the `mimetype` entry get codes of their own, `mimetype-data-descriptor` and `mimetype-extra-field`, where implementations reported them as `mimetype-content` for want of one; the corpus gains a case for each. §3: normalization and case folding name their **Unicode version**, 16.0.0. The rule relied on data that changes between versions without saying which, so two conforming implementations could disagree on whether two names were one; Unicode's stability policies confine any remaining difference to characters assigned after 16.0.0, which a producer should not use in a name.
 - §14.1: an element with **text on several lines** is canonical. The layout rules said such an element was written on one line, which a summary in paragraphs cannot be without losing what §4.3 preserves for display; both serializers had kept the line breaks, which the rule did not allow to the letter. The text now begins and ends on the line of its start tag, its own line breaks written as they are. `valid-multiline-description` is the corpus case, a two-paragraph summary, found on the first real album converted.
 - §14.1: the **canonical serialization** says how a document is laid out. It fixed the encoding, the declaration, the line endings and the order of attributes, then promised that two tools would produce byte-identical documents, while saying nothing about indentation or where lines break — a promise nothing could keep. One element per line, two spaces per level, attributes on the line of their start tag, text on the line of its element, and a final LF. The corpus, whose documents wrapped their attributes by hand, is rewritten in this form, and `tools/canonical.py` is the reference serializer that `tests/test_canonical.py` holds it to.

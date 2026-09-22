@@ -8,6 +8,7 @@ held to it.
 """
 
 
+import json
 import os
 import sys
 import tempfile
@@ -22,7 +23,12 @@ import canonical                          # noqa: E402
 from test_converter import convert        # noqa: E402
 
 FIXTURES = ["manga.cbz", "bare.cbz", "messy.cbz"]
-EXPECTED_PACKAGES = 45
+
+# Section 14.1 binds a conforming producer. A case built to break a rule about
+# documents holds one no producer would have written — not well-formed, past a
+# limit of section 13.1 — and has nothing to say about their layout.
+NOT_CANONICAL = {"xml-not-well-formed", "xml-document-size-limit", "xml-nesting-limit"}
+EXPECTED_PACKAGES = 67
 
 CASES = [
     ("an element with no content is self-closing",
@@ -48,9 +54,14 @@ def documents(path):
     Section 14.1 binds core documents. A carried-over ComicInfo.xml is never
     normative for KOMA (section 1) and is copied as it was found.
     """
-    with zipfile.ZipFile(path) as z:
-        return {name: z.read(name) for name in z.namelist()
-                if name == "META-INF/container.xml" or (name.startswith("koma/") and name.endswith(".xml"))}
+    # A package that is no zip carries no core document, which is its own
+    # case: L1-not-a-zip is a file, not an archive.
+    try:
+        with zipfile.ZipFile(path) as z:
+            return {name: z.read(name) for name in z.namelist()
+                    if name == "META-INF/container.xml" or (name.startswith("koma/") and name.endswith(".xml"))}
+    except zipfile.BadZipFile:
+        return {}
 
 
 def check(label, raw, failures):
@@ -77,7 +88,13 @@ def main():
     assert len(packages) == EXPECTED_PACKAGES, (
         f"expected {EXPECTED_PACKAGES} packages, found {len(packages)}")
 
+    with open(os.path.join(ROOT, "corpus", "expected.json"), encoding="utf-8") as fh:
+        broken = {c["package"] for c in json.load(fh)["cases"] if c.get("code") in NOT_CANONICAL}
+
     for package in packages:
+        if package in broken:
+            continue
+
         for name, raw in documents(os.path.join(ROOT, "corpus", "packages", package)).items():
             failures = check(f"{package}: {name}", raw, failures)
 

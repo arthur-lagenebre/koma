@@ -5,6 +5,7 @@ the outcome a conforming validator must report for each. Cases are named after
 the layer they exercise: L1 container, L2 XML, L3 cross-document, L4 resource.
 """
 
+import base64
 import hashlib
 import io
 import json
@@ -230,6 +231,11 @@ def write_package(path, xml_files, pages, mimetype=MIMETYPE,
     with zipfile.ZipFile(path, "w") as z:
         for name, data, stored in entries:
             zi = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
+
+            # ZipInfo replaces the platform separator with "/" as it is built,
+            # which on Windows flattens the backslash L1-path-backslash is
+            # about. The name is written exactly as it was given.
+            zi.filename = name
             zi.compress_type = (zipfile.ZIP_STORED if stored
                                 else zipfile.ZIP_DEFLATED)
             zi.external_attr = 0o644 << 16
@@ -340,6 +346,7 @@ def chain(*fns):
     return f
 
 
+C = "META-INF/container.xml"
 M = "koma/manifest.xml"
 
 # A page list over the four items of valid-minimal, the two-page spread
@@ -593,6 +600,147 @@ case("L4-residual-exif-orientation", "error", "exif-orientation-residue",
 
 # ---------------------------------------------------------------- main
 
+def drop(doc):
+    """Return a mutator removing a core document."""
+    def f(files, pages):
+        del files[doc]
+    return f
+
+
+def as_multipart(path):
+    """Say in the end-of-central-directory record that the archive is split.
+
+    A real multi-part archive is several files; what a validator sees of one
+    is a disk number other than zero, which is what is patched here.
+    """
+    with open(path, "rb") as fh:
+        b = bytearray(fh.read())
+
+    eocd = b.rfind(b"PK\x05\x06")
+    b[eocd + 4:eocd + 8] = (1).to_bytes(2, "little") + (1).to_bytes(2, "little")
+
+    with open(path, "wb") as fh:
+        fh.write(bytes(b))
+
+
+def nested_extensions(depth):
+    """An Extensions element holding `depth` nested foreign elements."""
+    inner = '<x:a xmlns:x="urn:example:deep">' + "<x:a>" * (depth - 1) + "</x:a>" * depth
+
+    return sub(D, "</Metadata>", f"  <Extensions>\n    {inner}\n  </Extensions>\n</Metadata>")
+
+
+def oversized_comment(size):
+    """A comment of `size` characters, compressible but not beyond §13.1.
+
+    A document over the 16 MiB of §13.1 must still be an entry whose ratio
+    stays under 100:1, or the ratio would be reported first and the case
+    would test the wrong rule. Random text sets the floor, spaces the size.
+    """
+    noise = base64.b64encode(random.Random(7).randbytes(size // 64)).decode()
+
+    return sub(D, "</Metadata>", f"  <!-- {noise}{' ' * (size - len(noise))} -->\n</Metadata>")
+
+
+# --------------------------------------------- codes without a case until now
+
+case("L1-not-a-zip", "error", "not-a-zip",
+     "A file with no end-of-central-directory record.",
+     raw=b"KOMA? no: this file has no central directory at all.\n")
+
+case("L1-multipart-archive", "error", "multipart-archive",
+     "The end-of-central-directory record claims a second disk.",
+     postprocess=as_multipart)
+
+case("L1-path-empty", "error", "path-empty",
+     "An entry named with a single space.",
+     extra_entries=[(" ", b"x")])
+
+case("L1-path-backslash", "error", "path-backslash",
+     "An entry name with a backslash, which is no separator in a package.",
+     extra_entries=[("extras\\note.txt", b"x")])
+
+case("L1-path-empty-segment", "error", "path-empty-segment",
+     "An entry name with a doubled separator.",
+     extra_entries=[("extras//note.txt", b"x")])
+
+case("L1-path-not-normalized", "error", "path-not-normalized",
+     "An entry name in NFD: the e and its accent are two characters.",
+     extra_entries=[("extras/cafe\u0301.bin", b"x")])
+
+case("L1-entry-count-limit", "error", "entry-count-limit",
+     "10 001 entries, one above the default profile (section 13.1).",
+     extra_entries=[(f"extras/{i:05d}.bin", b"") for i in range(10001 - 9)])
+
+case("L1-uncompressed-size-limit", "error", "uncompressed-size-limit",
+     "64 MiB of zeros in entries of 1 MiB, which the per-entry ratio exempts, "
+     "for an archive of a few hundred kilobytes (section 13.1).",
+     extra_entries=[(f"extras/ballast-{i:02d}.bin", b"\0" * (1024 * 1024)) for i in range(64)])
+
+case("L2-missing-metadata", "error", "missing-required-xml",
+     "The package has no metadata document.",
+     mutate=drop(D))
+
+case("L2-xml-not-well-formed", "error", "xml-not-well-formed",
+     "The metadata document is cut short.",
+     mutate=sub(D, "</Metadata>", "<Metadata>"))
+
+case("L2-xml-doctype", "error", "xml-not-well-formed",
+     "The metadata document carries a document type declaration, which "
+     "section 13 forbids.",
+     mutate=sub(D, "<Metadata ", "<!DOCTYPE Metadata>\n<Metadata "))
+
+case("L2-schema-invalid-container", "error", "schema-invalid:container",
+     "An element the container schema does not define.",
+     mutate=sub(C, "  </RootFiles>", "  </RootFiles>\n  <Bogus/>"))
+
+case("L2-schema-invalid-metadata", "error", "schema-invalid:metadata",
+     "An element the metadata schema does not define.",
+     mutate=sub(D, "</Metadata>", "  <Bogus/>\n</Metadata>"))
+
+case("L2-schema-invalid-manifest", "error", "schema-invalid:manifest",
+     "An element the manifest schema does not define.",
+     mutate=sub(M, "</Manifest>", "  <Bogus/>\n</Manifest>"))
+
+case("L2-schema-invalid-navigation", "error", "schema-invalid:navigation",
+     "An element the navigation schema does not define.",
+     mutate=sub(N, "</Navigation>", "  <Bogus/>\n</Navigation>"))
+
+case("L2-xml-nesting-limit", "error", "xml-nesting-limit",
+     "Foreign content nested 101 elements deep in the metadata (section 13.1).",
+     mutate=nested_extensions(99))
+
+case("L2-xml-document-size-limit", "error", "xml-document-size-limit",
+     "A metadata document above the 16 MiB of section 13.1.",
+     mutate=oversized_comment(16 * 1024 * 1024 + 4096))
+
+case("L3-landmark-duplicate-type", "error", "landmark-duplicate-type",
+     "Two landmarks of type front-cover.",
+     mutate=sub(N, '    <Landmark type="body-start" item="p002"/>',
+                '    <Landmark type="front-cover" item="p002"/>'))
+
+case("L3-no-accessibility", "warning", "no-publication-accessibility",
+     "A publication that declares no accessibility metadata (section 7.13).",
+     mutate=sub(D, """  <Accessibility>
+    <AccessMode>visual</AccessMode>
+    <AccessibilityHazard>no-flashing-hazard</AccessibilityHazard>
+    <AccessibilitySummary xml:lang="fr">Pages decrites.</AccessibilitySummary>
+  </Accessibility>
+""", ""))
+
+case("L3-undeclared-page-resource", "error", "undeclared-page-resource",
+     "A page file the manifest does not declare, which is the reverse of "
+     "spine-target-missing: the file is there and the declaration is not.",
+     extra_entries=[("pages/999.png", PAGES["pages/002.png"])])
+
+case("L4-missing-page-resource", "error", "missing-page-resource",
+     "A manifest item whose file is not in the package.",
+     mutate=sub(M, '    <Item id="p002"', '    <Item id="p005" href="pages/005.png" media-type="image/png" width="800" height="1200" roles="story"/>\n    <Item id="p002"'))
+
+case("L4-unreadable-page-resource", "error", "unreadable-page-resource",
+     "A page whose bytes decode as no image.",
+     pages_override={"pages/002.png": b"\x89PNG\r\n\x1a\n" + b"not an image at all"})
+
 def build(out=None):
     out = out or DEFAULT_OUT
     packages = os.path.join(out, "packages")
@@ -613,7 +761,14 @@ def build(out=None):
             files[M] = files[M].replace(sha256(PAGES["pages/001.jpg"]),
                                         sha256(pages["pages/001.jpg"]))
         path = os.path.join(packages, c["name"] + ".koma")
-        write_package(path, files, pages, **pkg)
+        raw = pkg.pop("raw", None)
+
+        if raw is None:
+            write_package(path, files, pages, **pkg)
+        else:
+            # Not a package at all: the bytes are the case.
+            with open(path, "wb") as f:
+                f.write(raw)
         expected.append({"package": c["name"] + ".koma",
                          "outcome": c["outcome"],
                          "code": c["code"],

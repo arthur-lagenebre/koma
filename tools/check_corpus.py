@@ -44,6 +44,8 @@ TOTAL_UNCOMPRESSED = 4 * 1024 ** 3
 ARCHIVE_MULTIPLE = 100
 MAX_RATIO = 100
 RATIO_FLOOR = 1024 * 1024
+MAX_XML_BYTES = 16 * 1024 * 1024
+MAX_XML_DEPTH = 100
 
 # Section 4.5: every open vocabulary, as (document, element, attribute or
 # None for element content, whether the value is a TokenList, core tokens).
@@ -160,6 +162,40 @@ def actual_size(raw, info):
     return None
 
 
+def stored_names(raw):
+    """The entry names as the central directory holds them.
+
+    zipfile rewrites a name as it reads it — on Windows it turns every
+    backslash into a slash — so the names it reports are not always the names
+    section 3 judges. These are read from the bytes.
+    """
+    eocd = raw.rfind(b"PK\x05\x06")
+
+    if eocd < 0:
+        return []
+
+    at = int.from_bytes(raw[eocd + 16:eocd + 20], "little")
+    names = []
+
+    while raw[at:at + 4] == b"PK\x01\x02":
+        flags = int.from_bytes(raw[at + 8:at + 10], "little")
+        length = int.from_bytes(raw[at + 28:at + 30], "little")
+        extra = int.from_bytes(raw[at + 30:at + 32], "little")
+        comment = int.from_bytes(raw[at + 32:at + 34], "little")
+        name = raw[at + 46:at + 46 + length]
+        names.append(name.decode("utf-8" if flags & 0x800 else "cp437", "replace"))
+        at += 46 + length + extra + comment
+
+    return names
+
+
+def depth(element, level=1):
+    """The deepest nesting under an element, counting the element as one."""
+    children = [c for c in element if isinstance(c.tag, str)]
+
+    return max((depth(c, level + 1) for c in children), default=level)
+
+
 def check(path, rng):
     errors, warnings = [], []
 
@@ -179,6 +215,13 @@ def check(path, rng):
     except zipfile.BadZipFile:
         return ["not-a-zip"], []
     names = z.namelist()
+
+    # A split archive holds a part of the publication somewhere else, so
+    # nothing read here can be judged. The disk numbers of the
+    # end-of-central-directory record are what says so.
+    eocd = raw.rfind(b"PK\x05\x06")
+    if eocd >= 0 and raw[eocd + 4:eocd + 8] != b"\0\0\0\0":
+        err("multipart-archive")
 
     if not names or names[0] != "mimetype":
         err("mimetype-position")
@@ -201,7 +244,7 @@ def check(path, rng):
         err("mimetype-content")
 
     seen = {}
-    for n in names:
+    for n in stored_names(raw):
         if not n.strip():
             err("path-empty")
         if n.startswith("/") or (len(n) > 1 and n[1] == ":" and n[0].isascii()
@@ -224,7 +267,7 @@ def check(path, rng):
     # 13.1, default profile. The declared sizes are the producer's claim, so the
     # ratio is checked against them and the actual output is checked against the
     # claim: an archive that under-declares passes every test made on paper.
-    if len(names) > MAX_ENTRIES:
+    if len(stored_names(raw)) > MAX_ENTRIES:
         err("entry-count-limit")
 
     declared_total = 0
@@ -252,11 +295,30 @@ def check(path, rng):
             if kind != "navigation":
                 err("missing-required-xml")
             continue
+        data = z.read(member)
+
+        # 13.1, before the document is parsed: a reader that parses first has
+        # made the allocation the limit exists to prevent.
+        if len(data) > MAX_XML_BYTES:
+            err("xml-document-size-limit")
+            continue
+
         try:
-            doc = etree.fromstring(z.read(member))
+            doc = etree.fromstring(data)
         except etree.XMLSyntaxError:
             err("xml-not-well-formed")
             continue
+
+        # Section 13 forbids a document type declaration outright, and a
+        # document carrying one is not a core document a reader may parse.
+        if doc.getroottree().docinfo.doctype:
+            err("xml-not-well-formed")
+            continue
+
+        if depth(doc) > MAX_XML_DEPTH:
+            err("xml-nesting-limit")
+            continue
+
         if not rng[kind].validate(doc):
             err(f"schema-invalid:{kind}")
         docs[kind] = doc

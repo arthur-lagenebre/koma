@@ -270,6 +270,138 @@
       "outcome": "error",
       "code": "exif-orientation-residue",
       "note": "The cover keeps an EXIF orientation of 6."
+    },
+    {
+      "package": "L1-not-a-zip.koma",
+      "outcome": "error",
+      "code": "not-a-zip",
+      "note": "A file with no end-of-central-directory record."
+    },
+    {
+      "package": "L1-multipart-archive.koma",
+      "outcome": "error",
+      "code": "multipart-archive",
+      "note": "The end-of-central-directory record claims a second disk."
+    },
+    {
+      "package": "L1-path-empty.koma",
+      "outcome": "error",
+      "code": "path-empty",
+      "note": "An entry named with a single space."
+    },
+    {
+      "package": "L1-path-backslash.koma",
+      "outcome": "error",
+      "code": "path-backslash",
+      "note": "An entry name with a backslash, which is no separator in a package."
+    },
+    {
+      "package": "L1-path-empty-segment.koma",
+      "outcome": "error",
+      "code": "path-empty-segment",
+      "note": "An entry name with a doubled separator."
+    },
+    {
+      "package": "L1-path-not-normalized.koma",
+      "outcome": "error",
+      "code": "path-not-normalized",
+      "note": "An entry name in NFD: the e and its accent are two characters."
+    },
+    {
+      "package": "L1-entry-count-limit.koma",
+      "outcome": "error",
+      "code": "entry-count-limit",
+      "note": "10 001 entries, one above the default profile (section 13.1)."
+    },
+    {
+      "package": "L1-uncompressed-size-limit.koma",
+      "outcome": "error",
+      "code": "uncompressed-size-limit",
+      "note": "64 MiB of zeros in entries of 1 MiB, which the per-entry ratio exempts, for an archive of a few hundred kilobytes (section 13.1)."
+    },
+    {
+      "package": "L2-missing-metadata.koma",
+      "outcome": "error",
+      "code": "missing-required-xml",
+      "note": "The package has no metadata document."
+    },
+    {
+      "package": "L2-xml-not-well-formed.koma",
+      "outcome": "error",
+      "code": "xml-not-well-formed",
+      "note": "The metadata document is cut short."
+    },
+    {
+      "package": "L2-xml-doctype.koma",
+      "outcome": "error",
+      "code": "xml-not-well-formed",
+      "note": "The metadata document carries a document type declaration, which section 13 forbids."
+    },
+    {
+      "package": "L2-schema-invalid-container.koma",
+      "outcome": "error",
+      "code": "schema-invalid:container",
+      "note": "An element the container schema does not define."
+    },
+    {
+      "package": "L2-schema-invalid-metadata.koma",
+      "outcome": "error",
+      "code": "schema-invalid:metadata",
+      "note": "An element the metadata schema does not define."
+    },
+    {
+      "package": "L2-schema-invalid-manifest.koma",
+      "outcome": "error",
+      "code": "schema-invalid:manifest",
+      "note": "An element the manifest schema does not define."
+    },
+    {
+      "package": "L2-schema-invalid-navigation.koma",
+      "outcome": "error",
+      "code": "schema-invalid:navigation",
+      "note": "An element the navigation schema does not define."
+    },
+    {
+      "package": "L2-xml-nesting-limit.koma",
+      "outcome": "error",
+      "code": "xml-nesting-limit",
+      "note": "Foreign content nested 101 elements deep in the metadata (section 13.1)."
+    },
+    {
+      "package": "L2-xml-document-size-limit.koma",
+      "outcome": "error",
+      "code": "xml-document-size-limit",
+      "note": "A metadata document above the 16 MiB of section 13.1."
+    },
+    {
+      "package": "L3-landmark-duplicate-type.koma",
+      "outcome": "error",
+      "code": "landmark-duplicate-type",
+      "note": "Two landmarks of type front-cover."
+    },
+    {
+      "package": "L3-no-accessibility.koma",
+      "outcome": "warning",
+      "code": "no-publication-accessibility",
+      "note": "A publication that declares no accessibility metadata (section 7.13)."
+    },
+    {
+      "package": "L3-undeclared-page-resource.koma",
+      "outcome": "error",
+      "code": "undeclared-page-resource",
+      "note": "A page file the manifest does not declare, which is the reverse of spine-target-missing: the file is there and the declaration is not."
+    },
+    {
+      "package": "L4-missing-page-resource.koma",
+      "outcome": "error",
+      "code": "missing-page-resource",
+      "note": "A manifest item whose file is not in the package."
+    },
+    {
+      "package": "L4-unreadable-page-resource.koma",
+      "outcome": "error",
+      "code": "unreadable-page-resource",
+      "note": "A page whose bytes decode as no image."
     }
   ]
 }

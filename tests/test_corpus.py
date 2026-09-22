@@ -27,7 +27,7 @@ from check_corpus import check           # noqa: E402
 from test_schemas import compile_schemas  # noqa: E402
 
 
-EXPECTED_PACKAGES = 45
+EXPECTED_PACKAGES = 67
 
 
 def run(directory, expected, rng, label):
@@ -62,10 +62,17 @@ def structure(path):
     the central directory is not where that is decided. Images are compared by
     name only, since their bytes depend on the Pillow that produced them.
     """
-    with zipfile.ZipFile(path) as z:
-        names = [i.filename for i in z.infolist()]
-        exact = {n: z.read(n) for n in names
-                 if n == "mimetype" or n.endswith(".xml")}
+    # A file that is no archive is compared as its bytes: L1-not-a-zip has no
+    # entries to compare, and is the case that says so.
+    try:
+        with zipfile.ZipFile(path) as z:
+            names = [i.filename for i in z.infolist()]
+            exact = {n: z.read(n) for n in names
+                     if n == "mimetype" or n.endswith(".xml")}
+    except zipfile.BadZipFile:
+        with open(path, "rb") as fh:
+            return [], {os.path.basename(path): fh.read()}
+
     return names, exact
 
 
