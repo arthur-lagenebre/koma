@@ -71,7 +71,9 @@ jobs:
   # in the Actions tab. actionlint reads the workflows the way GitHub will,
   # contexts included, and fails the push instead.
   workflows:
-    runs-on: ubuntu-latest
+    # Pinned rather than latest: actionlint runs shellcheck from the image,
+    # and a linter has nothing to gain from an image moving under it.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
 
