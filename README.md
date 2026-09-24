@@ -1,5 +1,12 @@
 # KOMA
 
+[![Conformance](https://github.com/arthur-lagenebre/koma/actions/workflows/ci.yml/badge.svg)](https://github.com/arthur-lagenebre/koma/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/Python-3.14+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Spec](https://img.shields.io/badge/Spec-CC%20BY%204.0-EF9421?logo=creativecommons&logoColor=white)](LICENSE-SPEC)
+[![Corpus](https://img.shields.io/badge/Corpus-CC0%201.0-EF9421?logo=creativecommons&logoColor=white)](LICENSE-CORPUS)
+[![Tools](https://img.shields.io/badge/Tools-Apache%202.0-D22128)](LICENSE-CODE)
+[![Généré par](https://img.shields.io/badge/Généré%20par-Claude%20Code-D97757?logo=claude&logoColor=white)](https://claude.com/claude-code)
+
 A fixed-page publication format for graphic novels, manga, bande dessinée, comics, manhwa and other sequential graphic works. It packages raster pages with structured metadata, an explicit reading spine, optional navigation, and optional ComicInfo interoperability metadata.
 
 KOMA is a name, not an acronym. It comes from the Japanese コマ (*koma*), the panel — the smallest unit every one of those forms shares. It expands to nothing, and it deliberately does not name any single publishing category.
